@@ -68,8 +68,12 @@ class SyncORM:
 
     @staticmethod
     def insert_user(key_word_id: int, phone_number: str, chat_id: str):
+        query = select(User).where(User.phone_number == phone_number)
         new_user = User(key_word_id=key_word_id, role=UserRole.user, phone_number=phone_number, chat_id=chat_id)
         with session_factory() as session:
+            user = session.execute(query).scalars().first()
+            if user:
+                return
             session.add(new_user)
             session.commit()
 
@@ -79,3 +83,10 @@ class SyncORM:
         with session_factory() as session:
             session.add(new_feedback)
             session.commit()
+
+    @staticmethod
+    def find_user_by_phone(phone: str):
+        query = select(User).options(selectinload(User.key_word)).where(User.phone_number == phone)
+        with session_factory() as session:
+            user = session.execute(query).scalars().first()
+            return user
