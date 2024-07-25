@@ -260,7 +260,7 @@ def handel_download_file(notification: Notification):
     except Exception:
         notification.answer("Введите число")
         return
-    if option >= len(files):
+    if option > len(files):
         notification.answer("Такого варианта нет")
         return
     curr_path = os.path.dirname(__file__)
