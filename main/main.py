@@ -59,6 +59,17 @@ def send_message(notification: Notification):
     notification.answer("Введите уведомление")
 
 
+@bot.router.message(command="feedback")
+def feedback_command(notification: Notification):
+    sender = notification.sender
+    key = SyncORM.find_user_by_phone(sender.split("@")[0])
+    if not key:
+        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
+        return
+    notification.state_manager.update_state(sender, States.FEEDBACK.value)
+    notification.answer("Введите отзыв")
+
+
 @bot.router.message(state=States.SEND.value)
 def send_message_handler(notification: Notification):
     users = SyncORM.get_all_users()
@@ -242,17 +253,6 @@ def search_handler(notification: Notification) -> None:
             is_send = True
     if not is_send:
         notification.answer("Файл не найден")
-
-
-@bot.router.message(command="feedback")
-def feedback_command(notification: Notification):
-    sender = notification.sender
-    key = SyncORM.find_user_by_phone(sender.split("@")[0])
-    if not key:
-        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
-        return
-    notification.state_manager.update_state(sender, States.FEEDBACK.value)
-    notification.answer("Введите отзыв")
 
 
 @bot.router.message(state=States.FEEDBACK.value)
