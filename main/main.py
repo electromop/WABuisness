@@ -3,6 +3,7 @@ import os.path
 from whatsapp_chatbot_python import GreenAPIBot, Notification
 
 import states
+from database.models import UserRole
 from YaDisk import YaDisk
 from config_reader import config
 from database.queries import SyncORM
@@ -55,6 +56,10 @@ def get_all_files(notification: Notification):
 @bot.router.message(command="send")
 def send_message(notification: Notification):
     sender = notification.sender
+    user = SyncORM.find_user_by_phone(sender.split("@")[0])
+    if user.role != UserRole.admin:
+        notification.answer("Вы не администратор")
+        return
     notification.state_manager.update_state(sender, States.SEND.value)
     notification.answer("Введите уведомление")
 
@@ -73,6 +78,7 @@ def feedback_command(notification: Notification):
 @bot.router.message(state=States.SEND.value)
 def send_message_handler(notification: Notification):
     users = SyncORM.get_all_users()
+    notification.answer("Рассылка началась")
     for user in users:
         notification.api.sending.sendMessage(user.chat_id, notification.message_text)
 
