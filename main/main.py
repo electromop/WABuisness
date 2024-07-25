@@ -16,6 +16,10 @@ disk = YaDisk(token=config.token_ya.get_secret_value())
 @bot.router.message(command="start")
 def start_command(notification: Notification) -> None:
     sender = notification.sender
+    key = notification.state_manager.get_state_data(sender).get("key_word")
+    if key:
+        notification.state_manager.update_state(sender, States.CATEGORY.value)
+        return
     notification.state_manager.set_state(sender, States.KEY_WORD.value)
     notification.answer("Введите ключевое слово")
 
@@ -223,7 +227,6 @@ def search_handler(notification: Notification) -> None:
                 return
             notification.answer_with_file(f"{prj_dir}/files/{file[0]}", file[0])
             notification.answer("Как ознакомитесь с материалом, напишите в чат \"Ознакомлен\"")
-
             notification.state_manager.update_state(sender, States.READY.value)
             notification.state_manager.set_state_data(sender, {"material": notification.message_text})
             os.remove(f"{prj_dir}/files/{file[0]}")
