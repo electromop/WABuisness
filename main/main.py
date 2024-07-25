@@ -268,11 +268,11 @@ def handel_download_file(notification: Notification):
     try:
         notification.answer("Подождите, идет загрузка...")
         disk.download_file(files[option - 1][1], f"{prj_dir}/files/{files[option - 1][0]}")
-        os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     except Exception:
         notification.answer("Что то пошло не так")
     notification.answer_with_file(f"{prj_dir}/files/{files[option - 1][0]}", files[option - 1][0])
     notification.answer("Как ознакомитесь с материалом, напишите в чат \"Ознакомлен\"")
+    os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     notification.state_manager.update_state(sender, States.READY.value)
 
 
