@@ -16,10 +16,9 @@ disk = YaDisk(token=config.token_ya.get_secret_value())
 @bot.router.message(command="start")
 def start_command(notification: Notification) -> None:
     sender = notification.sender
-    try:
-        key = notification.state_manager.get_state_data(sender).get("key_word")
-        if key:
-            notification.answer("Введите номер раздела:\n\n"
+    key = SyncORM.find_user_by_phone(sender.split("@")[0])
+    if key:
+        notification.answer("Введите номер раздела:\n\n"
                                 "1. Срочно и важно\n"
                                 "2. Информация для нового сотрудника\n"
                                 "3. Инфопак\n"
@@ -29,11 +28,10 @@ def start_command(notification: Notification) -> None:
                                 "7. Контакты\n"
                                 "8. KPI и мотивация\n"
                                 "9. FAQ / ЧаВо (часто задаваемые вопросы)")
-            notification.state_manager.update_state(sender, States.CATEGORY.value)
-            return
-    except Exception:
-        notification.state_manager.set_state(sender, States.KEY_WORD.value)
-        notification.answer("Введите ключевое слово")
+        notification.state_manager.update_state(sender, States.CATEGORY.value)
+        return
+    notification.state_manager.set_state(sender, States.KEY_WORD.value)
+    notification.answer("Введите ключевое слово")
 
 
 @bot.router.message(command="search")
@@ -46,7 +44,7 @@ def search(notification: Notification) -> None:
 @bot.router.message(command="files")
 def get_all_files(notification: Notification):
     sender = notification.sender
-    key = notification.state_manager.get_state_data(sender)["key_word"]
+    key = SyncORM.find_user_by_phone(sender.split("@")[0])
     if not key:
         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
@@ -214,19 +212,15 @@ def ready_handler(notification: Notification):
 @bot.router.message(state=States.SEARCH.value)
 def search_handler(notification: Notification) -> None:
     sender = notification.sender
-    key = notification.state_manager.get_state_data(sender)
-    if key is None:
-        notification.answer("Пройдите авторизацию")
+    key_word = SyncORM.find_user_by_phone(sender.split("@")[0])
+    if not key_word:
+        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
-    key = notification.state_manager.get_state_data(sender).get("key_word")
     material = SyncORM.find_material(notification.message_text)
     if material:
         name = material.name
     else:
         notification.answer("Файл не найден")
-        return
-    if not key:
-        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
     files = [(i["name"], i["path"]) for i in disk.get_files()]
     is_send = False
@@ -253,7 +247,7 @@ def search_handler(notification: Notification) -> None:
 @bot.router.message(command="feedback")
 def feedback_command(notification: Notification):
     sender = notification.sender
-    key = notification.state_manager.get_state_data(sender)["key_word"]
+    key = SyncORM.find_user_by_phone(sender.split("@")[0])
     if not key:
         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
