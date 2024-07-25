@@ -7,3 +7,5 @@ class States(BaseStates):
     SEARCH = "search"
     READY = "ready"
     SEND = "send"
+    FEEDBACK = "feedback"
+    DOWNLOAD = "download"

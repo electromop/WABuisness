@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 
 
 from database.database_init import engine, Base, session_factory
-from database.models import User, Material, UserRole
+from database.models import User, Material, UserRole, Keyword, Question
 
 
 class SyncORM:
@@ -15,7 +15,7 @@ class SyncORM:
 
     @staticmethod
     def check_key(key: str):
-        query = select(User).where(User.key_word == key)
+        query = select(Keyword).where(Keyword.key_word == key)
         with session_factory() as session:
             res = session.execute(query)
             result = res.scalars().first()
@@ -27,7 +27,7 @@ class SyncORM:
         with session_factory() as session:
             res = session.execute(query)
             result = res.scalars().first()
-            return result.name
+            return result
 
     @staticmethod
     def read_material(key: str, phone: str):
@@ -49,10 +49,33 @@ class SyncORM:
             return users
 
     @staticmethod
-    def update_chat(chat_id, phone_number):
-        query = select(User).where(User.phone_number == phone_number)
+    def update_chat(chat_id: str, id: int):
+        query = select(User).where(User.id == id)
         with session_factory() as session:
             user_db = session.execute(query)
             user = user_db.scalars().first()
             user.chatId = chat_id
+            session.commit()
+
+    @staticmethod
+    def update_phone(phone: str, id: int):
+        query = select(User).where(User.id == id)
+        with session_factory() as session:
+            user_db = session.execute(query)
+            user = user_db.scalars().first()
+            user.phone_number = phone
+            session.commit()
+
+    @staticmethod
+    def insert_user(key_word_id: int, phone_number: str, chat_id: str):
+        new_user = User(key_word_id=key_word_id, role=UserRole.user, phone_number=phone_number, chat_id=chat_id)
+        with session_factory() as session:
+            session.add(new_user)
+            session.commit()
+
+    @staticmethod
+    def new_feedback(text: str, phone: str):
+        new_feedback = Question(question=text, phone_number=phone)
+        with session_factory() as session:
+            session.add(new_feedback)
             session.commit()

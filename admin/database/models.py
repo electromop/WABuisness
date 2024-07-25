@@ -18,16 +18,14 @@ class UserRole(enum.Enum):
 class User(Base):
     __tablename__ = "users"
     id: Mapped[intpk]
-    name: Mapped[str]
-    key_word: Mapped[str]
-    role: Mapped[UserRole]
-    phone_number: Mapped[str]
+    name: Mapped[str] = mapped_column(nullable=True)
+    key_word_id: Mapped[int] = mapped_column(ForeignKey("keywords.id", ondelete="CASCADE"))
+    key_word: Mapped["Keyword"] = relationship(back_populates="users")
+    role: Mapped[UserRole] = mapped_column(default=UserRole.user)
+    phone_number: Mapped[str] = mapped_column(nullable=True)
     chat_id: Mapped[str] = mapped_column(nullable=True)
     date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
-    region: Mapped[str]
-    #team: Mapped[list["User"]] = relationship(back_populates="parent")
-    #parent: Mapped["User"] = relationship(remote_side=[.id], back_populates="team")
-    #parent_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    region: Mapped[str] = mapped_column(nullable=True)
     materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
     def add_material(self, session: Session, material: 'Material'):
@@ -36,7 +34,8 @@ class User(Base):
         if user_material:
             user_material.count += 1
         else:
-            user_material = UserMaterials(user_id=self.id, material_id=material.id, count=1)
+            user_material = UserMaterials(user_id=self.id, material_id=material.id, count=1,
+                                          user_phone=self.phone_number, material=material.name)
             session.add(user_material)
         session.commit()
 
@@ -46,6 +45,15 @@ class UserMaterials(Base):
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
+    user_phone: Mapped[str]
+    material: Mapped[str]
+
+
+class Keyword(Base):
+    __tablename__ = "keywords"
+    id: Mapped[intpk]
+    key_word: Mapped[str]
+    users: Mapped[list["User"]] = relationship(back_populates="key_word")
 
 
 class Material(Base):
@@ -54,3 +62,10 @@ class Material(Base):
     name: Mapped[str]
     key_word: Mapped[str]
     users: Mapped[list[User]] = relationship(back_populates="materials", secondary="user_materials")
+
+
+class Question(Base):
+    __tablename__ = "questions"
+    id: Mapped[intpk]
+    phone_number: Mapped[str]
+    question: Mapped[str]
