@@ -19,6 +19,16 @@ def start_command(notification: Notification) -> None:
     try:
         key = notification.state_manager.get_state_data(sender).get("key_word")
         if key:
+            notification.answer("Введите номер раздела:\n\n"
+                                "1. Срочно и важно\n"
+                                "2. Информация для нового сотрудника\n"
+                                "3. Инфопак\n"
+                                "4. Работа с программами\n"
+                                "5. Памятка мерчандайзера\n"
+                                "6. База знаний\n"
+                                "7. Контакты\n"
+                                "8. KPI и мотивация\n"
+                                "9. FAQ / ЧаВо (часто задаваемые вопросы)")
             notification.state_manager.update_state(sender, States.CATEGORY.value)
             return
     except Exception:
@@ -40,7 +50,6 @@ def get_all_files(notification: Notification):
     if not key:
         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
-
     files = set([i["name"] for i in disk.get_files() if i.get("type") != "dir"])
     notification.answer(("{:s}\n" * len(files)).format(*files)[:-1:])
 
@@ -205,7 +214,11 @@ def ready_handler(notification: Notification):
 @bot.router.message(state=States.SEARCH.value)
 def search_handler(notification: Notification) -> None:
     sender = notification.sender
-    key = notification.state_manager.get_state_data(sender)["key_word"]
+    key = notification.state_manager.get_state_data(sender)
+    if key is None:
+        notification.answer("Пройдите авторизацию")
+        return
+    key = notification.state_manager.get_state_data(sender).get("key_word")
     material = SyncORM.find_material(notification.message_text)
     if material:
         name = material.name
