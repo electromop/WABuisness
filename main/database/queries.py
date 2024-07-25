@@ -27,7 +27,7 @@ class SyncORM:
         with session_factory() as session:
             res = session.execute(query)
             result = res.scalars().first()
-            return result.name
+            return result
 
     @staticmethod
     def read_material(key: str, phone: str):

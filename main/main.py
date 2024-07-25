@@ -162,7 +162,12 @@ def ready_handler(notification: Notification):
 def search_handler(notification: Notification) -> None:
     sender = notification.sender
     key = notification.state_manager.get_state_data(sender)
-    name = SyncORM.find_material(notification.message_text)
+    material = SyncORM.find_material(notification.message_text)
+    if material:
+        name = material.name
+    else:
+        notification.answer("Файл не найден")
+        return
     if not key:
         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
