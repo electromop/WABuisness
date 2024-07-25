@@ -63,7 +63,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -76,7 +76,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -88,7 +88,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -101,7 +101,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -114,7 +114,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -126,7 +126,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -138,7 +138,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -150,7 +150,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -163,7 +163,7 @@ def choose_category(notification: Notification):
                 notification.answer("Материалы не найдены")
                 return
             files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "".join(["{:d}{:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
+            formatted_string = "".join(["{:d}. {:s}\n".format(i + 1, file[0]) for i, file in enumerate(files)])[:-1]
             notification.answer(formatted_string)
             notification.answer("Введите номер материала, чтобы просмотреть его")
             notification.state_manager.set_state_data(sender, {"category": files})
@@ -232,13 +232,32 @@ def search_handler(notification: Notification) -> None:
         notification.answer("Файл не найден")
 
 
+@bot.router.message(command="feedback")
+def feedback_command(notification: Notification):
+    sender = notification.sender
+    key = notification.state_manager.get_state_data(sender)["key_word"]
+    if not key:
+        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
+        return
+    notification.state_manager.update_state(sender, States.FEEDBACK.value)
+    notification.answer("Введите отзыв")
+
+
+@bot.router.message(state=States.FEEDBACK.value)
+def give_feedback(notification: Notification):
+    text = notification.message_text
+    sender = notification.sender
+    SyncORM.new_feedback(text, sender.split("@")[0])
+    notification.answer("Ваш отзыв записан")
+
+
 @bot.router.message(state=States.DOWNLOAD.value)
 def handel_download_file(notification: Notification):
     sender = notification.sender
     files = notification.state_manager.get_state_data(sender)["category"]
     try:
         option = int(notification.message_text)
-    except TypeError or ValueError:
+    except Exception:
         notification.answer("Введите число")
         return
     curr_path = os.path.dirname(__file__)
@@ -246,9 +265,12 @@ def handel_download_file(notification: Notification):
     try:
         notification.answer("Подождите, идет загрузка...")
         disk.download_file(files[option - 1][1], f"{prj_dir}/files/{files[option - 1][0]}")
+        os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     except Exception:
         notification.answer("Что то пошло не так")
     notification.answer_with_file(f"{prj_dir}/files/{files[option - 1][0]}", files[option - 1][0])
+    notification.answer("Как ознакомитесь с материалом, напишите в чат \"Ознакомлен\"")
+    notification.state_manager.update_state(sender, States.READY.value)
 
 
 @bot.router.message(state=States.KEY_WORD.value)
@@ -274,21 +296,6 @@ def key_word_handler(notification: Notification) -> None:
                             "9. FAQ / ЧаВо (часто задаваемые вопросы)")
     else:
         notification.answer("Ключевое слово не найдено")
-
-
-@bot.router.message(command="feedback")
-def feedback_command(notification: Notification):
-    sender = notification.sender
-    notification.state_manager.update_state(sender, States.FEEDBACK.value)
-    notification.answer("Введите отзыв")
-
-
-@bot.router.message(state=States.FEEDBACK.value)
-def give_feedback(notification: Notification):
-    text = notification.message_text
-    sender = notification.sender
-    SyncORM.new_feedback(text, sender.split("@")[0])
-    notification.answer("Ваш оотзыв записан")
 
 
 if __name__ == "__main__":
