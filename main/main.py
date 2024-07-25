@@ -274,6 +274,7 @@ def handel_download_file(notification: Notification):
     notification.answer("Как ознакомитесь с материалом, напишите в чат \"Ознакомлен\"")
     os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     notification.state_manager.update_state(sender, States.READY.value)
+    notification.state_manager.set_state_data(sender, {"material": files[option - 1][0]})
 
 
 @bot.router.message(state=States.KEY_WORD.value)
