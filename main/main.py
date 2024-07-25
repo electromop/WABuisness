@@ -222,6 +222,17 @@ def ready_handler(notification: Notification):
     if notification.message_text.lower() == "ознакомлен":
         SyncORM.read_material(key_mat, phone)
         notification.answer("Информация записана")
+        notification.answer("Введите номер раздела:\n\n"
+                                "1. Срочно и важно\n"
+                                "2. Информация для нового сотрудника\n"
+                                "3. Инфопак\n"
+                                "4. Работа с программами\n"
+                                "5. Памятка мерчандайзера\n"
+                                "6. База знаний\n"
+                                "7. Контакты\n"
+                                "8. KPI и мотивация\n"
+                                "9. FAQ / ЧаВо (часто задаваемые вопросы)")
+        notification.state_manager.update_state(sender, States.CATEGORY.value)
         return
     notification.answer("Как ознакомитесь с материалом, напишите в чат \"Ознакомлен\"")
 
@@ -267,6 +278,7 @@ def give_feedback(notification: Notification):
     sender = notification.sender
     SyncORM.new_feedback(text, sender.split("@")[0])
     notification.answer("Ваш отзыв записан")
+    notification.state_manager.update_state(sender, States.KEY_WORD.value)
 
 
 @bot.router.message(state=States.DOWNLOAD.value)

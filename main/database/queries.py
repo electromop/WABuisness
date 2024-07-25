@@ -10,7 +10,7 @@ class SyncORM:
 
     @staticmethod
     def create_table():
-        Base.metadata.drop_all(engine)
+        #Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
 
     @staticmethod
