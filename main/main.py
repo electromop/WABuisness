@@ -16,12 +16,14 @@ disk = YaDisk(token=config.token_ya.get_secret_value())
 @bot.router.message(command="start")
 def start_command(notification: Notification) -> None:
     sender = notification.sender
-    key = notification.state_manager.get_state_data(sender).get("key_word")
-    if key:
-        notification.state_manager.update_state(sender, States.CATEGORY.value)
-        return
-    notification.state_manager.set_state(sender, States.KEY_WORD.value)
-    notification.answer("Введите ключевое слово")
+    try:
+        key = notification.state_manager.get_state_data(sender).get("key_word")
+        if key:
+            notification.state_manager.update_state(sender, States.CATEGORY.value)
+            return
+    except Exception:
+        notification.state_manager.set_state(sender, States.KEY_WORD.value)
+        notification.answer("Введите ключевое слово")
 
 
 @bot.router.message(command="search")
