@@ -35,7 +35,7 @@ class User(Base):
             user_material.count += 1
         else:
             user_material = UserMaterials(user_id=self.id, material_id=material.id, count=1,
-                                          user_phone=self.phone_number, material=material.name)
+                                          user_phone=self.phone_number, material_name=material.name)
             session.add(user_material)
         session.commit()
 
@@ -46,7 +46,8 @@ class UserMaterials(Base):
     material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
-    material: Mapped[str]
+    material_name: Mapped[str]
+    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
 
 
 class Keyword(Base):

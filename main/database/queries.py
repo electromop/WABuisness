@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 
 
@@ -35,7 +35,7 @@ class SyncORM:
         with session_factory() as session:
             user_db = session.execute(query)
             user = user_db.scalars().first()
-            material_db = session.execute(select(Material).where(Material.key_word == key))
+            material_db = session.execute(select(Material).where(or_(Material.key_word == key, Material.name == key)))
             material = material_db.scalars().first()
             if material:
                 user.add_material(session, material)
