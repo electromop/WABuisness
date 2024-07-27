@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_USER: postgres 
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: whatsapp
-      DB_SSL__REJECT_UNAUTHORIZED: false
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-  
 
   backend:
     build:
@@ -20,8 +8,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    depends_on:
-      - db
 
   admin:
     build:
@@ -30,8 +16,6 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
-    depends_on:
-      - db
   
 
 volumes:
