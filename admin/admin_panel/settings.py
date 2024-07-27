@@ -79,10 +79,10 @@ WSGI_APPLICATION = 'admin_panel.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'whatsapp',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'db',
+        'NAME': 'default_db',
+        'USER': 'gen_user',
+        'PASSWORD': 'L(/y\&{P9aHL(G',
+        'HOST': '147.45.107.28',
         'PORT': '5432',
     }
 }
