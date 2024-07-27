@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY admin_panel/ /app/admin_panel
 COPY main/ /app/main
+COPY static/ /app/static
 COPY manage.py requirements.txt ./
 
 
