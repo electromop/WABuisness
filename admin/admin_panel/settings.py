@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'default_db',
         'USER': 'gen_user',
-        'PASSWORD': 'L(/y\&{P9aHL(G',
+        'PASSWORD': 'L(/y\\&{P9aHL(G',
         'HOST': '147.45.107.28',
         'PORT': '5432',
     }
