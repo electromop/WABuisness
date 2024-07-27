@@ -17,7 +17,7 @@ services:
       context: ./main
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "5000:5000"
     depends_on:
       - db
 
@@ -25,10 +25,12 @@ services:
     build:
       context: ./admin
       dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - "5000:5000"
+      - "8000:8000"
     depends_on:
       - db
+  
 
 volumes:
   postgres_data:
