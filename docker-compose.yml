@@ -7,11 +7,12 @@ services:
       POSTGRES_USER: postgres 
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: whatsapp
+      DB_SSL__REJECT_UNAUTHORIZED: false
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init_db:/docker-entrypoint-initdb.d
+  
 
   backend:
     build:
