@@ -24,7 +24,7 @@ mimetypes.add_type("text/html", ".html", True)
 SECRET_KEY = 'django-insecure-m1rj&fh_vszvdh+bshicf8y^&9#s@9e3(k8**l%n)m^y%=w78@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 
