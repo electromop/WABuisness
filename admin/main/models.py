@@ -17,7 +17,7 @@ class Keyword(models.Model):
     class Meta:
         db_table = "keywords"
         verbose_name = "Ключевое слово"
-        verbose_name_plural = "Ключивые слова"
+        verbose_name_plural = "Ключевые слова"
 
 
 class User(models.Model):
