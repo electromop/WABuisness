@@ -1,10 +1,12 @@
+import enum
+
 from django.db import models
 from django.utils.timezone import now
 
 
-class UserRole(models.TextChoices):
-    user = 'USER', 'User'
-    admin = 'ADMIN', 'Admin'
+class UserRole(enum.Enum):
+    user = 'USER'
+    admin = 'ADMIN'
 
 
 class Keyword(models.Model):
@@ -24,7 +26,7 @@ class User(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)  # Adjust max_length as needed
     key_word = models.ForeignKey(Keyword, on_delete=models.CASCADE, related_name='users')
-    role = models.CharField(max_length=5, choices=UserRole.choices, default=UserRole.user)
+    role = models.CharField(max_length=5, choices=[(role, role.value) for role in UserRole], default=UserRole.user)
     phone_number = models.CharField(max_length=15, null=True, blank=True)  # Adjust max_length as needed
     chat_id = models.CharField(max_length=255, null=True, blank=True)  # Adjust max_length as needed
     date = models.DateTimeField(default=now)
