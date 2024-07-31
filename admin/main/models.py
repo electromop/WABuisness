@@ -5,8 +5,8 @@ from django.utils.timezone import now
 
 
 class UserRole(enum.Enum):
-    user = 'USER'
-    admin = 'ADMIN'
+    user = 'user'
+    admin = 'admin'
 
 
 class Keyword(models.Model):
