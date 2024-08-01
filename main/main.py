@@ -323,7 +323,7 @@ def search_handler(notification: Notification) -> None:
     if not key_word:
         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
         return
-    material = SyncORM.find_material(notification.message_text)
+    material = SyncORM.find_material(notification.message_text.strip().lower())
     if material:
         name = material.name
     else:

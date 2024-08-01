@@ -33,7 +33,7 @@ class User(models.Model):
     region = models.CharField(max_length=255, null=True, blank=True)  # Adjust max_length as needed
 
     def __str__(self):
-        return f"{self.phone_number} | {self.role.value} | {self.key_word}"
+        return f"{self.phone_number} | {self.role} | {self.key_word}"
 
     def add_material(self, material):
         user_material, created = UserMaterials.objects.get_or_create(
