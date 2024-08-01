@@ -90,7 +90,7 @@ class Question(models.Model):
     question = models.TextField()
 
     def __str__(self):
-        return f"{self.phone_number} | {self.question[:12:]}{"..." if len(self.question > 12) else ""}"
+        return f"{self.phone_number} | {self.question[:12:]}{"..." if len(self.question) > 12 else ""}"
 
     class Meta:
         db_table = "questions"
