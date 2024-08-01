@@ -33,7 +33,7 @@ class User(models.Model):
     region = models.CharField(max_length=255, null=True, blank=True)  # Adjust max_length as needed
 
     def __str__(self):
-        return self.name or f'User {self.id}'
+        return f"{self.phone_number} | {self.name if self.name else ""} | {self.key_word}"
 
     def add_material(self, material):
         user_material, created = UserMaterials.objects.get_or_create(
@@ -58,7 +58,7 @@ class Material(models.Model):
     users = models.ManyToManyField(User, through="UserMaterials")
 
     def __str__(self):
-        return self.name
+        return f"{self.name} | {self.key_word}"
 
     class Meta:
         db_table = "materials"
@@ -81,7 +81,7 @@ class UserMaterials(models.Model):
         verbose_name_plural = "Материалы пользователя"
 
     def __str__(self):
-        return f'{self.user.phone_number} - {self.material.name}'
+        return f'{self.user.phone_number} | {self.material.name} | {self.date.strftime("%d/%m/%Y")}'
 
 
 class Question(models.Model):
@@ -90,7 +90,7 @@ class Question(models.Model):
     question = models.TextField()
 
     def __str__(self):
-        return self.question
+        return f"{self.phone_number} | {self.question[:12:]}"
 
     class Meta:
         db_table = "questions"
