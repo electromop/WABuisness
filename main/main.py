@@ -379,7 +379,7 @@ def handel_download_file(notification: Notification):
     curr_path = os.path.dirname(__file__)
     prj_dir = os.path.join(curr_path)
     try:
-        notification.answer("Подождите, идет загрузка...")
+        notification.answer(random.choice(downloading))
         disk.download_file(files[option - 1][1], f"{prj_dir}/files/{files[option - 1][0]}")
     except Exception:
         notification.answer("Что то пошло не так")
