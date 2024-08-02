@@ -15,6 +15,16 @@ class UserRole(enum.Enum):
     user = "USER"
 
 
+class UserMaterials(Base):
+    __tablename__ = "user_materials"
+    user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
+    count: Mapped[int]
+    user_phone: Mapped[str]
+    material_name: Mapped[str]
+    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
+
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[intpk]
@@ -29,7 +39,8 @@ class User(Base):
     materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
     def add_material(self, session: Session, material: 'Material'):
-        query = select(UserMaterials).where((User.id == self.id) & (Material.id == material.id))
+        query = select(UserMaterials).where(
+            (UserMaterials.user_id == self.id) & (UserMaterials.material_id == material.id))
         user_material = session.execute(query).scalars().first()
         if user_material:
             user_material.count += 1
@@ -38,16 +49,6 @@ class User(Base):
                                           user_phone=self.phone_number, material_name=material.name)
             session.add(user_material)
         session.commit()
-
-
-class UserMaterials(Base):
-    __tablename__ = "user_materials"
-    user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
-    count: Mapped[int]
-    user_phone: Mapped[str]
-    material_name: Mapped[str]
-    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
 
 
 class Keyword(Base):
