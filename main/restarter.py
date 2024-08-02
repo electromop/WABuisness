@@ -52,7 +52,7 @@ def restart():
             print(f"FileNotFoundError: {e}")
         except Exception as e:
             print(f"An error occurred: {e}")
-        time.sleep(3600)
+        time.sleep(900)
 
 
 if __name__ == "__main__":

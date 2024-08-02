@@ -2,7 +2,7 @@ import datetime
 import enum
 from typing import Annotated
 
-from sqlalchemy import ForeignKey, text, select, and_
+from sqlalchemy import ForeignKey, text, select
 from sqlalchemy.orm import mapped_column, Mapped, relationship, Session
 
 from database.database_init import Base
@@ -29,7 +29,7 @@ class User(Base):
     materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
     def add_material(self, session: Session, material: 'Material'):
-        query = select(UserMaterials).where(and_(User.id == self.id, Material.id == material.id))
+        query = select(UserMaterials).where((User.id == self.id) & (Material.id == material.id))
         user_material = session.execute(query).scalars().first()
         if user_material:
             user_material.count += 1
