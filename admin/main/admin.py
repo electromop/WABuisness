@@ -3,9 +3,9 @@ from .models import User, UserMaterials, Material, Question, Keyword
 
 
 @admin.register(User)
-class UserAdmin(admin.InlineModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = ["id", "phone_number", "name", "role", "chat_id", "date", "region"]
-    inlines = [Keyword]
+    inlines = [Keyword, ]
     list_editable = ["phone_number", "name", "role", "chat_id", "date", "region"]
 
 
@@ -20,12 +20,12 @@ class UserMaterialsAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    inlines = [UserAdmin, Material]
+    inlines = [UserAdmin, Material, ]
     list_display = ["user_number", "count", "material_name", "date"]
 
 
 @admin.register(Material)
-class MaterialAdmin(admin.InlineModelAdmin):
+class MaterialAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "key_word"]
     list_editable = ["name", "key_word"]
 
@@ -37,7 +37,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Keyword)
-class KeywordAdmin(admin.InlineModelAdmin):
+class KeywordAdmin(admin.ModelAdmin):
     list_display = ["id", "key_word"]
     list_editable = ["key_word"]
 
