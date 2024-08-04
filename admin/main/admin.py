@@ -3,7 +3,7 @@ from .models import User, UserMaterials, Material, Question, Keyword
 
 
 @admin.register(User)
-class UserAdmin(admin.TabularInline):
+class UserAdmin(admin.InlineModelAdmin):
     list_display = ["id", "phone_number", "name", "role", "chat_id", "date", "region"]
     inlines = [Keyword]
     list_editable = ["phone_number", "name", "role", "chat_id", "date", "region"]
@@ -25,7 +25,7 @@ class UserMaterialsAdmin(admin.ModelAdmin):
 
 
 @admin.register(Material)
-class MaterialAdmin(admin.TabularInline):
+class MaterialAdmin(admin.InlineModelAdmin):
     list_display = ["id", "name", "key_word"]
     list_editable = ["name", "key_word"]
 
@@ -37,7 +37,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Keyword)
-class KeywordAdmin(admin.TabularInline):
+class KeywordAdmin(admin.InlineModelAdmin):
     list_display = ["id", "key_word"]
     list_editable = ["key_word"]
 
