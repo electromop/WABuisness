@@ -26,7 +26,8 @@ class MaterialAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["id", "phone_number", "question"]
+    list_editable = ["phone_number", "question"]
 
 
 @admin.register(Keyword)
