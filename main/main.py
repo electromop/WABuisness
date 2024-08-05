@@ -33,9 +33,9 @@ no_files = ("К сожалению, материалы по этой теме е
             "тебе о них рассĸазать. ✨🤝🏻\n*Выбери другой раздел и напиши в чат номер/цифру, соответствующий этому "
             "разделу.*")
 
-
 downloading = ["Загружаю для тебя данные....", "Не уходи далеĸо! Загружаем данные...", "Почти готово! Дай нам немного "
-                                                                                      "времени на загрузĸу..."]
+                                                                                       "времени на загрузĸу..."]
+
 
 @bot.router.message(command="start")
 def start_command(notification: Notification) -> None:
@@ -48,8 +48,10 @@ def start_command(notification: Notification) -> None:
                         "что я умею.* 🎯\n*Ключевое слово ты можешь узнать у своего руĸоводителя")
 
 
-@bot.router.message(text_message=["Помощь", "помощь", "Помощь.", "помощь.", "\"Помощь\"", "\"помощь\""])
+@bot.router.message(text_message=["Помощь", "помощь", "Помощь.", "помощь.", "\"Помощь\"", "\"помощь\"", "ПОМОЩЬ"])
 def help_command(notification: Notification):
+    sender = notification.sender
+    notification.state_manager.update_state(sender, States.HELP.value)
     notification.answer("Давай я помогу тебе сориентироваться:"
                         "\n\n✅ - Если ты изучил материал, то напиши \"Изучено\""
                         "\n\n🔍 - Если ты хочешь выбрать другую тему и материал, то напиши \"Меню\""
@@ -67,7 +69,7 @@ def greeting(notification: Notification):
     notification.answer(menu)
 
 
-@bot.router.message(text_message=["Меню", "меню", "\"Меню\"", "\"меню\""])
+@bot.router.message(text_message=["Меню", "меню", "\"Меню\"", "\"меню\"", "МЕНЮ"])
 def menu_handler(notification: Notification):
     sender = notification.sender
     notification.state_manager.update_state(sender, States.CATEGORY.value)
@@ -117,16 +119,21 @@ def feedback_command(notification: Notification):
     notification.answer("Введите отзыв")
 
 
+@bot.router.message(state=States.HELP.value)
+def handel_help(notification: Notification):
+    notification.answer(unknown)
+
+
 @bot.router.message(state=States.SEND.value)
 def send_message_handler(notification: Notification):
     sender = notification.sender
     match notification.message_text.lower():
         case "1" | "всем":
-            #users = SyncORM.get_all_users()
+            # users = SyncORM.get_all_users()
             notification.answer("Введите текст уведомления")
             notification.state_manager.set_state_data(sender, {"send": 1})
             notification.state_manager.update_state(sender, States.SEND_TEXT.value)
-            #for user in users:
+            # for user in users:
             #    notification.api.sending.sendMessage(user.chat_id, notification.message_text)
             return
         case "2" | "по ключевому слову":
@@ -139,7 +146,7 @@ def send_message_handler(notification: Notification):
             notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
         case _:
             notification.answer(unknown)
-            #notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
+            # notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
 
 
 @bot.router.message(state=States.SEND_CHOOSE.value)
@@ -205,7 +212,7 @@ def choose_category(notification: Notification):
                     files)])[:-1] + ("\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                      "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -225,7 +232,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -244,7 +251,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -264,7 +271,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -284,7 +291,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -303,7 +310,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -322,7 +329,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -341,7 +348,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
@@ -361,7 +368,7 @@ def choose_category(notification: Notification):
                                    "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
-            
+
             notification.state_manager.set_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
