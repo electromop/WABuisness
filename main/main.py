@@ -139,14 +139,15 @@ def send_message_handler(notification: Notification):
             notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
         case _:
             notification.answer(unknown)
-            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
+            #notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
 
 
 @bot.router.message(state=States.SEND_CHOOSE.value)
 def send_chosen(notification: Notification):
     sender = notification.sender
     notification.answer("Введите текст уведомления")
-    notification.state_manager.set_state_data(sender, {"send_choose": notification.message_text})
+    option = notification.state_manager.get_state_data(sender)["send"]
+    notification.state_manager.set_state_data(sender, {"send_choose": (notification.message_text, option)})
     notification.state_manager.update_state(sender, States.SEND_TEXT.value)
 
 
@@ -156,8 +157,7 @@ def send_text(notification: Notification):
     option = notification.state_manager.get_state_data(sender).get("send")
     key_value = notification.state_manager.get_state_data(sender).get("send_choose")
     if not option:
-        notification.answer("Что то пошло не так")
-        return
+        option = key_value[1]
     match option:
         case 1:
             users = SyncORM.get_all_users()
@@ -183,8 +183,11 @@ def send_text(notification: Notification):
             for user in users:
                 notification.api.sending.sendMessage(user.chat_id, notification.message_text)
             return
+        case _:
+            notification.answer(unknown)
+            return
 
-            
+
 @bot.router.message(state=States.CATEGORY.value)
 def choose_category(notification: Notification):
     sender = notification.sender

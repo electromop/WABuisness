@@ -2,8 +2,8 @@ from django.contrib import admin
 from .models import User, UserMaterials, Material, Question, Keyword
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-
-
+from django.utils.timezone import make_aware
+from datetime import UTC
 class KeywordResource(resources.ModelResource):
     class Meta:
         model = Keyword
@@ -12,6 +12,11 @@ class KeywordResource(resources.ModelResource):
 class UserResource(resources.ModelResource):
     class Meta:
         model = User
+
+    def dehydrate_date(self, user):
+        if user.date:
+            return make_aware(user.date, timezone=UTC)
+        return None
 
 
 class UserAdminInline(admin.TabularInline):
@@ -29,6 +34,11 @@ class UserMaterialsResource(resources.ModelResource):
     class Meta:
         model = UserMaterials
         exclude = ("user", "material")
+
+    def dehydrate_date(self, user_material):
+        if user_material.date:
+            return make_aware(user_material.date, timezone=UTC)
+        return None
 
 
 class UserMaterialsAdmin(ImportExportModelAdmin):
