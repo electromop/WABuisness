@@ -93,8 +93,12 @@ class SyncORM:
 
     @staticmethod
     def find_users_by_key(key: str):
-        query = select(User).where(User.key_word == key)
+        query_key = select(Keyword).where(Keyword.key_word == key)
         with session_factory() as session:
+            key_word = session.execute(query_key).scalars().first()
+            if not key_word:
+                return []
+            query = select(User).where(User.key_word_id == key_word.id)
             users = session.execute(query).scalars().all()
             return users
 
