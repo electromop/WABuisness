@@ -100,10 +100,10 @@ def send_message(notification: Notification):
         notification.answer("Вы не администратор")
         return
     notification.state_manager.update_state(sender, States.SEND.value)
-    notification.answer("Выберите тип рассылки\n"
-                        "1. Всем\n"
-                        "2. По ключевому слову\n"
-                        "3. По указанному региону\n")
+    notification.answer("Выберите тип рассылки:\n"
+                        "1. Всем\n\n"
+                        "2. По ключевому слову\n\n"
+                        "3. По указанному региону")
 
 
 @bot.router.message(command="feedback")
