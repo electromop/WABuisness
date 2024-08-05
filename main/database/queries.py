@@ -90,3 +90,18 @@ class SyncORM:
         with session_factory() as session:
             user = session.execute(query).scalars().first()
             return user
+
+    @staticmethod
+    def find_users_by_key(key: str):
+        query = select(User).where(User.key_word == key)
+        with session_factory() as session:
+            users = session.execute(query).scalars().all()
+            return users
+
+    @staticmethod
+    def find_users_by_region(region: str):
+        query = select(User).where(User.region == region)
+        with session_factory() as session:
+            users = session.execute(query).scalars().all()
+            return users
+        

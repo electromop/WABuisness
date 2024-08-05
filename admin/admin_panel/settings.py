@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import mimetypes
+from import_export.formats.base_formats import XLSX, CSV
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,11 +27,12 @@ SECRET_KEY = 'django-insecure-m1rj&fh_vszvdh+bshicf8y^&9#s@9e3(k8**l%n)m^y%=w78@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
-
+EXPORT_FORMATS = [XLSX, CSV]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'import_export',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -113,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

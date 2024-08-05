@@ -100,7 +100,10 @@ def send_message(notification: Notification):
         notification.answer("Вы не администратор")
         return
     notification.state_manager.update_state(sender, States.SEND.value)
-    notification.answer("Введите уведомление")
+    notification.answer("Выберите тип рассылки\n"
+                        "1. Всем\n"
+                        "2. По ключевому слову\n"
+                        "3. По указанному региону\n")
 
 
 @bot.router.message(command="feedback")
@@ -116,12 +119,72 @@ def feedback_command(notification: Notification):
 
 @bot.router.message(state=States.SEND.value)
 def send_message_handler(notification: Notification):
-    users = SyncORM.get_all_users()
-    notification.answer("Рассылка началась")
-    for user in users:
-        notification.api.sending.sendMessage(user.chat_id, notification.message_text)
+    sender = notification.sender
+    match notification.message_text.lower():
+        case "1" | "всем":
+            #users = SyncORM.get_all_users()
+            notification.answer("Введите текст уведомления")
+            notification.state_manager.set_state_data(sender, {"send": 1})
+            notification.state_manager.update_state(sender, States.SEND_TEXT.value)
+            #for user in users:
+            #    notification.api.sending.sendMessage(user.chat_id, notification.message_text)
+            return
+        case "2" | "по ключевому слову":
+            notification.answer("Введите ключевое слово")
+            notification.state_manager.set_state_data(sender, {"send": 2})
+            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
+        case "3" | "по указанному региону":
+            notification.answer("Введите регион")
+            notification.state_manager.set_state_data(sender, {"send": 3})
+            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
+        case _:
+            notification.answer(unknown)
+            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
 
 
+@bot.router.message(state=States.SEND_CHOOSE.value)
+def send_chosen(notification: Notification):
+    sender = notification.sender
+    notification.answer("Введите текст уведомления")
+    notification.state_manager.set_state_data(sender, {"send_choose": notification.message_text})
+    notification.state_manager.update_state(sender, States.SEND_TEXT.value)
+
+
+@bot.router.message(state=States.SEND_TEXT.value)
+def send_text(notification: Notification):
+    sender = notification.sender
+    option = notification.state_manager.get_state_data(sender).get("send")
+    key_value = notification.state_manager.get_state_data(sender).get("send_choose")
+    if not option:
+        notification.answer("Что то пошло не так")
+        return
+    match option:
+        case 1:
+            users = SyncORM.get_all_users()
+            notification.answer("Рассылка началась")
+            for user in users:
+                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
+            return
+        case 2:
+            users = SyncORM.find_users_by_key(key_value)
+            if len(users) == 0:
+                notification.answer("Нет пользователей с таким ключом")
+                return
+            notification.answer("Рассылка началась")
+            for user in users:
+                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
+            return
+        case 3:
+            users = SyncORM.find_users_by_region(key_value)
+            if len(users) == 0:
+                notification.answer("Нет пользователей с таким регионом")
+                return
+            notification.answer("Рассылка началась")
+            for user in users:
+                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
+            return
+
+            
 @bot.router.message(state=States.CATEGORY.value)
 def choose_category(notification: Notification):
     sender = notification.sender

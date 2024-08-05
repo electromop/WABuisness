@@ -9,3 +9,6 @@ class States(BaseStates):
     SEND = "send"
     FEEDBACK = "feedback"
     DOWNLOAD = "download"
+    SEND_CHOOSE = "send_choose"
+    SEND_TEXT = "send_text"
+    
