@@ -98,13 +98,13 @@ class SyncORM:
             key_word = session.execute(query_key).scalars().first()
             if not key_word:
                 return []
-            query = select(User).where(User.key_word_id == key_word.id)
+            query = select(User).where((User.key_word_id == key_word.id) & (User.role != UserRole.admin))
             users = session.execute(query).scalars().all()
             return users
 
     @staticmethod
     def find_users_by_region(region: str):
-        query = select(User).where(User.region == region)
+        query = select(User).where((User.region == region) & (User.role != UserRole.admin))
         with session_factory() as session:
             users = session.execute(query).scalars().all()
             return users
