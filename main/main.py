@@ -145,10 +145,10 @@ def send_message_handler(notification: Notification):
 @bot.router.message(state=States.SEND_CHOOSE.value)
 def send_chosen(notification: Notification):
     sender = notification.sender
-    notification.answer("Введите текст уведомления")
     option = notification.state_manager.get_state_data(sender)["send"]
     notification.state_manager.set_state_data(sender, {"send_choose": (notification.message_text, option)})
     notification.state_manager.update_state(sender, States.SEND_TEXT.value)
+    notification.answer("Введите текст уведомления")
 
 
 @bot.router.message(state=States.SEND_TEXT.value)
@@ -166,7 +166,7 @@ def send_text(notification: Notification):
                 notification.api.sending.sendMessage(user.chat_id, notification.message_text)
             return
         case 2:
-            users = SyncORM.find_users_by_key(key_value)
+            users = SyncORM.find_users_by_key(key_value[0])
             if len(users) == 0:
                 notification.answer("Нет пользователей с таким ключом")
                 return
@@ -175,7 +175,7 @@ def send_text(notification: Notification):
                 notification.api.sending.sendMessage(user.chat_id, notification.message_text)
             return
         case 3:
-            users = SyncORM.find_users_by_region(key_value)
+            users = SyncORM.find_users_by_region(key_value[0])
             if len(users) == 0:
                 notification.answer("Нет пользователей с таким регионом")
                 return
