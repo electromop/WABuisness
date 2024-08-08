@@ -162,7 +162,7 @@ class SyncORM:
 
                 
                 sent_titles = [user_material.material_name for user_material in user_materials]
-                mailings = [mailing for mailing in mailings if mailing.title not in sent_titles]
+                mailings = [mailing for mailing in mailings if 'Рассылка - ' + mailing.title not in sent_titles]
                 print('\n\n\n\n❤️❤️❤️❤️❤️❤️', sent_titles, mailings, phone, '\n\n\n\n')
                 return mailings
             except:
