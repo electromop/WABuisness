@@ -25,7 +25,7 @@ class UserMaterials(Base):
     count: Mapped[int]
     user_phone: Mapped[str]
     material_name: Mapped[str]
-    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
+    date: Mapped[datetime] = mapped_column(default=datetime.now())
 
 
 class User(Base):
@@ -37,7 +37,7 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(default=UserRole.user)
     phone_number: Mapped[str] = mapped_column(nullable=True)
     chat_id: Mapped[str] = mapped_column(nullable=True)
-    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
+    date: Mapped[datetime] = mapped_column(default=datetime.now())
     region: Mapped[str] = mapped_column(nullable=True)
     #materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
