@@ -66,7 +66,6 @@ def help_command(notification: Notification):
 def greeting(notification: Notification):
     sender = notification.sender
     key = SyncORM.find_user_by_phone(sender.split("@")[0])
-    print(key.phone_number, '❗❗❗')
     if not key:
         notification.state_manager.set_state(sender, States.KEY_WORD.value)
         notification.answer("Привет, коллега! 🥳\nМеня зовут Хеллпер, я чат-бот помощник.\nЗдесь ты найдешь последние "
