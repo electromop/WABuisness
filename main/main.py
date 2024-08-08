@@ -473,7 +473,8 @@ def handel_download_file(notification: Notification):
     elif files[option - 1][1] == "Рассылка":
         mailing_title = files[option - 1][0]
         mailing_text = SyncORM.get_mailing_text(mailing_title)
-        notification.answer(f"Заголовок: {mailing_title}\n\n{mailing_text}")
+        
+        notification.answer(f"Заголовок: {mailing_title}\n\n{mailing_text}/n/n*Не забудь зайти в раздел \"Срочно и важно\" и указать уведомление изученным*")
     else:    
         curr_path = os.path.dirname(__file__)
         prj_dir = os.path.join(curr_path)
