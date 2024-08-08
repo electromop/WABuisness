@@ -101,7 +101,7 @@ def send_message(notification: Notification):
     if user.role != UserRole.admin:
         notification.answer("Вы не администратор")
         return
-    notification.state_manager.update_state(sender, States.TITLE.value)
+    notification.state_manager.update_state(sender, States.TYPE.value)
     notification.answer("Выберите тип рассылки:\n"
                         "1. Всем\n\n"
                         "2. По ключевому слову\n\n"
@@ -123,76 +123,82 @@ def send_message(notification: Notification):
 def handle_help(notification: Notification):
     notification.answer(unknown)
 
+@bot.router.message(state=States.TYPE.value)
+def handle_mailing_type(notification: Notification):
+    mailing_type = notification.message_text
+    sender = notification.sender
+    notification.state_manager.update_state_data(sender, {"mailing_type": mailing_type})
+    
+    if mailing_type == "1" or mailing_type.lower() == "всем":
+        notification.answer("Введите заголовок уведомления")
+        notification.state_manager.update_state_data(sender, {"mailing_type": 'all_users'})
+        notification.state_manager.update_state(sender, States.SEND.value)
+
+    elif mailing_type == "2" or mailing_type.lower() == "по ключевому слову":
+        notification.answer("Введите ключевое слово")
+        notification.state_manager.update_state_data(sender, {"mailing_type": 'keyword'})
+        notification.state_manager.update_state(sender, States.PARAMETER.value)
+    
+    elif mailing_type == "3" or mailing_type.lower() == "по указанному региону":
+        notification.answer("Введите регион")
+        notification.state_manager.update_state_data(sender, {"mailing_type": 'region'})
+        notification.state_manager.update_state(sender, States.PARAMETER.value)
+        
+    else:
+        notification.answer(unknown)
+        notification.state_manager.update_state(sender, States.TYPE.value)
+        
+    
+    
+@bot.router.message(state=States.PARAMETER.value)
+def handle_mailing_parameter(notification: Notification):
+    #сохраняем ключевое слово или регион для рассылки
+    print('Дошли до сюда')
+    mailing_type = notification.state_manager.get_state_data(notification.sender)["mailing_type"]
+    sender = notification.sender
+    if mailing_type != 'all_users':
+        notification.state_manager.update_state_data(sender, {mailing_type: notification.message_text})
+    
+    notification.answer("Введите заголовок уведомления")
+    notification.state_manager.update_state(sender, States.SEND.value)
 
 @bot.router.message(state=States.SEND.value)
 def send_message_handler(notification: Notification):
+    title = notification.message_text
     sender = notification.sender
-    match notification.message_text.lower():
-        case "1" | "всем":
-            # users = SyncORM.get_all_users()
-            notification.answer("Введите текст уведомления")
-            notification.state_manager.set_state_data(sender, {"send": 1})
-            notification.state_manager.update_state(sender, States.SEND_TEXT.value)
-            # for user in users:
-            #    notification.api.sending.sendMessage(user.chat_id, notification.message_text)
-            return
-        case "2" | "по ключевому слову":
-            notification.answer("Введите ключевое слово")
-            notification.state_manager.set_state_data(sender, {"send": 2})
-            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
-        case "3" | "по указанному региону":
-            notification.answer("Введите регион")
-            notification.state_manager.set_state_data(sender, {"send": 3})
-            notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
-        case _:
-            notification.answer(unknown)
-            # notification.state_manager.update_state(sender, States.SEND_CHOOSE.value)
-
-
-@bot.router.message(state=States.SEND_CHOOSE.value)
-def send_chosen(notification: Notification):
-    sender = notification.sender
-    option = notification.state_manager.get_state_data(sender)["send"]
-    notification.state_manager.set_state_data(sender, {"send_choose": (notification.message_text, option)})
-    notification.state_manager.update_state(sender, States.SEND_TEXT.value)
+    notification.state_manager.update_state_data(sender, {"title": title})
     notification.answer("Введите текст уведомления")
+    notification.state_manager.update_state(sender, States.SEND_TEXT.value)
+
 
 
 @bot.router.message(state=States.SEND_TEXT.value)
 def send_text(notification: Notification):
     sender = notification.sender
-    option = notification.state_manager.get_state_data(sender).get("send")
-    key_value = notification.state_manager.get_state_data(sender).get("send_choose")
-    if not option:
-        option = key_value[1]
-    match option:
-        case 1:
-            users = SyncORM.get_all_users()
-            notification.answer("Рассылка началась")
-            for user in users:
-                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
-            return
-        case 2:
-            users = SyncORM.find_users_by_key(key_value[0])
-            if len(users) == 0:
-                notification.answer("Нет пользователей с таким ключом")
-                return
-            notification.answer("Рассылка началась")
-            for user in users:
-                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
-            return
-        case 3:
-            users = SyncORM.find_users_by_region(key_value[0])
-            if len(users) == 0:
-                notification.answer("Нет пользователей с таким регионом")
-                return
-            notification.answer("Рассылка началась")
-            for user in users:
-                notification.api.sending.sendMessage(user.chat_id, notification.message_text)
-            return
-        case _:
-            notification.answer(unknown)
-            return
+    text = notification.message_text
+    print('❤️❤️❤️', notification.state_manager.get_state_data(sender))
+    mailing_type = notification.state_manager.get_state_data(sender)["mailing_type"]
+    title = notification.state_manager.get_state_data(sender)["title"]
+
+    keyword = None
+    region = None
+    
+    if mailing_type == 'all_users':
+        users = SyncORM.get_all_users()
+    elif mailing_type == 'keyword':
+        keyword = notification.state_manager.get_state_data(sender)["keyword"]
+        users = SyncORM.find_users_by_key(keyword)
+    elif mailing_type == 'region':
+        region = notification.state_manager.get_state_data(sender)["region"]
+        users = SyncORM.find_users_by_region(region)
+    
+    print('❤️❤️❤️', users)
+    for user in users:
+        notification.api.sending.sendMessage(user.chat_id, f"{title}\n{text}")
+        
+    notification.answer("Уведомление отправлено")
+    notification.state_manager.update_state(sender, States.CATEGORY.value)
+    SyncORM.insert_mailing(title, text, mailing_type, keyword, region)
 
 
 @bot.router.message(state=States.CATEGORY.value)
@@ -201,7 +207,9 @@ def choose_category(notification: Notification):
     match notification.message_text:
         case "1" | "Срочно и важно":
             res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/1. Срочно и важно")
-            if len(res) == 0:
+            mailings = SyncORM.get_mailings_for_user(sender.split("@")[0])
+            
+            if len(res) == 0 and not mailings:
                 notification.answer(no_files)
                 notification.answer(menu)
                 return
@@ -211,11 +219,22 @@ def choose_category(notification: Notification):
                  i, file in enumerate(
                     files)])[:-1] + ("\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
                                      "вернуться ĸ выбору темы написав мне \"Меню\"")
+            
+            
+            if mailings:
+                formatted_string += "\n\nПоследние уведомления:\n"
+                last_index = len(files)
+                for i, mailing in enumerate(mailings):
+                    formatted_string += f'{last_index + i + 1}. {mailing.title}\n'
+                    
+                files.extend([(mailing.title, "Рассылка") for mailing in mailings])
+            
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
+            
         case "2" | "Информация для нового сотрудника":
             res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/2. Информация для "
                                "нового сотрудника")
@@ -233,7 +252,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "3" | "Инфопак":
@@ -252,7 +271,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "4" | "Работа с программами":
@@ -272,7 +291,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "5" | "Памятка мерчандайзера":
@@ -292,7 +311,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "6" | "База знаний":
@@ -311,7 +330,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "7" | "Контакты":
@@ -330,7 +349,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "8" | "KPI и мотивация":
@@ -349,7 +368,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case "9" | "FAQ / ЧаВо (часто задаваемые вопросы)":
@@ -369,7 +388,7 @@ def choose_category(notification: Notification):
                                    "вернуться ĸ выбору темы написав мне \"Меню\"")
             notification.answer(formatted_string)
 
-            notification.state_manager.set_state_data(sender, {"category": files})
+            notification.state_manager.update_state_data(sender, {"category": files})
             notification.state_manager.update_state(sender, States.DOWNLOAD.value)
             return
         case _:
@@ -423,7 +442,7 @@ def search_handler(notification: Notification) -> None:
             notification.answer_with_file(f"{prj_dir}/files/{file[0]}", file[0])
             notification.answer("✅ *После ознаĸомления с материалом, напиши в чат \"Изучено\"*")
             notification.state_manager.update_state(sender, States.READY.value)
-            notification.state_manager.set_state_data(sender, {"material": notification.message_text})
+            notification.state_manager.update_state_data(sender, {"material": notification.message_text})
             os.remove(f"{prj_dir}/files/{file[0]}")
             is_send = True
     if not is_send:
@@ -448,22 +467,28 @@ def handel_download_file(notification: Notification):
     except Exception:
         notification.answer("🔢 Введите число/цифру")
         return
-    if option > len(files):
+    if option > len(files) and files[option - 1][1] != "Рассылка":
         notification.answer("❌ Такого варианта нет, выбери цифру/число из доступных вариантов.\n\n*В случае, если тебе нужно изучить другой раздел напиши \"Меню\"*")
         return
-    curr_path = os.path.dirname(__file__)
-    prj_dir = os.path.join(curr_path)
-    try:
-        notification.answer(random.choice(downloading))
-        disk.download_file(files[option - 1][1], f"{prj_dir}/files/{files[option - 1][0]}")
-    except Exception:
-        notification.answer("Что то пошло не так")
-    notification.answer_with_file(f"{prj_dir}/files/{files[option - 1][0]}", files[option - 1][0])
+    elif files[option - 1][1] == "Рассылка":
+        mailing_title = files[option - 1][0]
+        mailing_text = SyncORM.get_mailing_text(mailing_title)
+        notification.answer(f"Заголовок: {mailing_title}\n\n{mailing_text}")
+    else:    
+        curr_path = os.path.dirname(__file__)
+        prj_dir = os.path.join(curr_path)
+        try:
+            notification.answer(random.choice(downloading))
+            disk.download_file(files[option - 1][1], f"{prj_dir}/files/{files[option - 1][0]}")
+        except Exception:
+            notification.answer("Что то пошло не так")
+        notification.answer_with_file(f"{prj_dir}/files/{files[option - 1][0]}", files[option - 1][0])
+        os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
+        
     notification.answer("✅ *После ознаĸомления с материалом, напиши в чат \"Изучено\"*")
-    os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     notification.state_manager.update_state(sender, States.READY.value)
     print("material key value", files[option - 1][0])
-    notification.state_manager.set_state_data(sender, {"material": files[option - 1][0]})
+    notification.state_manager.update_state_data(sender, {"material": files[option - 1][0]})
 
 
 @bot.router.message(state=States.KEY_WORD.value)
@@ -475,15 +500,14 @@ def key_word_handler(notification: Notification) -> None:
         phone = sender.split("@")[0]
         SyncORM.insert_user(key_word_id=key_word.id, chat_id=chat, phone_number=phone)
         notification.state_manager.update_state(sender, States.CATEGORY.value)
-        notification.state_manager.set_state_data(sender, {"key_word": key_word})
+        notification.state_manager.update_state_data(sender, {"key_word": key_word})
         notification.answer(menu)
     else:
         notification.answer("Ключевое слово не подходит.\nПроверь ĸорреĸтность ввода и попробуй повторно.🧐\n\nЕсли "
                             "ты не знаешь или забыл ĸлючевое слово, то узнать его можно у своего руĸоводителя")
 
 
-while __name__ == "__main__":
-    try:
-        bot.run_forever()
-    except:
-        pass
+if __name__ == "__main__":
+    print('ok')
+    bot.run_forever()
+

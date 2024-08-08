@@ -12,5 +12,7 @@ class States(BaseStates):
     SEND_CHOOSE = "send_choose"
     SEND_TEXT = "send_text"
     HELP = "help"
+    TYPE = "type"
+    PARAMETER = "parameter"
     TITLE = "title"
     
