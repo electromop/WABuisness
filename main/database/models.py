@@ -24,8 +24,13 @@ class UserMaterials(Base):
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
+<<<<<<< HEAD
     material_name: Mapped[str] = mapped_column(primary_key=True)
     date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
+=======
+    material_name: Mapped[str]
+    date: Mapped[datetime] = mapped_column(default=datetime.now())
+>>>>>>> ab06d3f4a3f5e89c5e71265b230c1cfd7ba33e76
 
 
 class User(Base):
@@ -37,7 +42,7 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(default=UserRole.user)
     phone_number: Mapped[str] = mapped_column(nullable=True)
     chat_id: Mapped[str] = mapped_column(nullable=True)
-    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
+    date: Mapped[datetime] = mapped_column(default=datetime.now())
     region: Mapped[str] = mapped_column(nullable=True)
     #materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
