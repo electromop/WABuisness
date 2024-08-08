@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 
 
 from database.database_init import engine, Base, session_factory
-from database.models import User, UserRole, Keyword
+from database.models import User, UserRole, Keyword, Mailing
 
 
 class SyncORM:
@@ -86,8 +86,7 @@ class SyncORM:
     def find_user_by_phone(phone: str):
         query = select(User).options(selectinload(User.key_word)).where(User.phone_number == phone)
         with session_factory() as session:
-            user = session.execute(query).scalars().first()
-            return user
+            return session.execute(query).scalars().first()
 
     @staticmethod
     def find_users_by_key(key: str):
@@ -97,13 +96,42 @@ class SyncORM:
             if not key_word:
                 return []
             query = select(User).where((User.key_word_id == key_word.id) & (User.role != UserRole.admin))
-            users = session.execute(query).scalars().all()
-            return users
+            return session.execute(query).scalars().all()
 
     @staticmethod
     def find_users_by_region(region: str):
         query = select(User).where((User.region == region) & (User.role != UserRole.admin))
         with session_factory() as session:
-            users = session.execute(query).scalars().all()
-            return users
+            return session.execute(query).scalars().all()
         
+        
+    @staticmethod    
+    def insert_mailing(title: str, content: str, mailing_type: str, keyword: str = None, region: str = None):
+        
+        with session_factory() as session:
+            # Проверяем, что тип рассылки корректен
+            if mailing_type not in ['keyword', 'region', 'all_users']:
+                raise ValueError("Invalid mailing type. Must be 'keyword', 'region', or 'all_users'.")
+            
+            # Если тип рассылки 'keyword', то проверяем наличие ключевого слова
+            if mailing_type == 'keyword' and not keyword:
+                raise ValueError("Keyword is required when mailing type is 'keyword'.")
+            
+            # Если тип рассылки 'region', то проверяем наличие региона
+            if mailing_type == 'region' and not region:
+                raise ValueError("Region is required when mailing type is 'region'.")
+            
+            # Создаем объект рассылки
+            new_mailing = Mailing(
+                title=title,
+                content=content,
+                mailing_type=mailing_type,
+                keyword=keyword,
+                region=region
+            )
+            
+            # Добавляем в сессию и сохраняем в базу данных
+            session.add(new_mailing)
+            session.commit()
+            
+            return new_mailing

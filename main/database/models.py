@@ -7,6 +7,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship, Session
 
 from database.database_init import Base
 
+from sqlalchemy import Column, Integer, String, Text, Enum
 
 
 intpk = Annotated[int, mapped_column(autoincrement=True, primary_key=True)]
@@ -28,7 +29,7 @@ class UserMaterials(Base):
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[int]
+    id: Mapped[intpk] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=True)
     key_word_id: Mapped[int] = mapped_column(ForeignKey("keywords.id", ondelete="CASCADE"))
     key_word: Mapped["Keyword"] = relationship(back_populates="users")
@@ -57,6 +58,19 @@ class Keyword(Base):
     id: Mapped[intpk]
     key_word: Mapped[str]
     users: Mapped[list["User"]] = relationship(back_populates="key_word")
+
+
+class Mailing(Base):
+    __tablename__ = 'mailings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(255), nullable=False)  # Заголовок рассылки
+    content = Column(Text, nullable=False)  # Текст рассылки
+
+    mailing_type = Column(Enum('keyword', 'region', 'all_users', name='mailing_type_enum'), nullable=False)
+
+    keyword = Column(String(255), nullable=True)
+    region = Column(String(255), nullable=True)
 
 
 # class Material(Base):

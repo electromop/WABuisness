@@ -101,7 +101,7 @@ def send_message(notification: Notification):
     if user.role != UserRole.admin:
         notification.answer("Вы не администратор")
         return
-    notification.state_manager.update_state(sender, States.SEND.value)
+    notification.state_manager.update_state(sender, States.TITLE.value)
     notification.answer("Выберите тип рассылки:\n"
                         "1. Всем\n\n"
                         "2. По ключевому слову\n\n"
@@ -470,8 +470,7 @@ def handel_download_file(notification: Notification):
 def key_word_handler(notification: Notification) -> None:
     sender = notification.sender
     key_word = notification.message_text.lower().strip()
-    key_word = SyncORM.check_key(key_word)
-    if key_word:
+    if key_word := SyncORM.check_key(key_word):
         chat = notification.chat
         phone = sender.split("@")[0]
         SyncORM.insert_user(key_word_id=key_word.id, chat_id=chat, phone_number=phone)

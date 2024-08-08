@@ -65,5 +65,5 @@ class UserMaterials(models.Model):
         verbose_name_plural = "Материалы пользователя"
 
     def __str__(self):
-        return f'{self.user.phone_number} | {self.material.name} | {self.date.strftime("%d/%m/%Y")}'
+        return f'{self.user.phone_number} | {self.material_name} | {self.date.strftime("%d/%m/%Y")}'
 

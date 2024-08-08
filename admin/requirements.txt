@@ -9,3 +9,4 @@ sqlparse==0.5.1
 tablib==3.5.0
 tzdata==2024.1
 whitenoise==6.7.0
+django_admin_multiple_choice_list_filter==0.1.1
