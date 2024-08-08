@@ -1,0 +1,202 @@
+{% extends "admin/import_export/change_list.html" %}
+{% load i18n admin_urls static admin_modify%}
+
+
+{% block object-tools-items %}
+<style>
+    input[type="submit"].default {
+        display: block;
+        float: left;
+        padding: 3px 12px;
+        background: var(--object-tools-bg);
+        color: var(--object-tools-fg);
+        font-weight: 400;
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 15px;
+    }
+
+    thead {
+        position: sticky;
+        top: 0;
+    }
+
+    .results {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .image-popup {
+        display: none;
+        position: absolute;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+        z-index: 100;
+    }
+
+    .image-preview:hover .image-popup {
+        display: block;
+    }
+
+    body {
+  background: #292d33;
+  font: 12px/20px Arial;
+  padding: 20px;
+  color: #ccc;
+}
+
+p {
+  margin: 0 0 5px;
+}
+
+a, label {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #ddd;
+}
+
+.menu a {
+  display: block;
+  padding: 10px 15px;
+}
+
+.drop-down a {
+  min-width: 90px;
+}
+
+.drop-down-menu {
+  display: block;
+}
+
+.menu-title {
+  cursor: pointer;
+}
+
+.menu-title {
+  display:block;
+  padding: 10px 15px;
+}
+
+.activate {
+  display: none;
+
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 40px;
+  margin: 0 0 0 -15px;
+  opacity: 0;
+}
+
+/* Skin */
+
+:checked ~ .menu-title {
+  background: #495261;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#495261), color-stop(100%,#38404b));
+  background: -moz-linear-gradient(top, #495261 0%, #38404b 100%);
+}
+
+.menu-title {
+  background: #3d6d99;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5796d0), color-stop(100%,#3d6d99));
+    background: -moz-linear-gradient(top, #5796d0 0%, #3d6d99 100%);
+}
+
+.menu-title .drop-down-menu:hover {
+  background: #5a6470;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#495261), color-stop(100%,#38404b));
+  background: -moz-linear-gradient(top, #495261 0%, #38404b 100%);
+}
+
+.drop-down {
+  max-height: 0;
+  overflow: hidden;
+}
+
+
+.activate:checked ~ .drop-down {
+  max-height: 200px;
+}
+
+.drop-down, .menu a, .drop-down-menu {
+  -webkit-transform: translateZ(0);  
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+
+</style>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const links = document.querySelectorAll('.image-preview');
+
+        links.forEach(link => {
+            link.addEventListener('mouseover', function (event) {
+                let popup = this.querySelector('.image-popup');
+                if (!popup) {
+                    popup = document.createElement('div');
+                    popup.classList.add('image-popup');
+                    const img = document.createElement('img');
+                    img.src = this.getAttribute('href');
+                    img.style.maxHeight = '200px';
+                    popup.appendChild(img);
+                    this.appendChild(popup);
+                }
+                popup.style.left = `${event.pageX}px`;
+                popup.style.top = `${event.pageY}px`;
+            });
+
+            link.addEventListener('mousemove', function (event) {
+                const popup = this.querySelector('.image-popup');
+                popup.style.left = `${event.pageX}px`;
+                popup.style.top = `${event.pageY + 10}px`;
+            });
+
+            link.addEventListener('mouseout', function () {
+                const popup = this.querySelector('.image-popup');
+                if (popup) {
+                    this.removeChild(popup);
+                }
+            });
+        });
+        
+        document.querySelectorAll('input[class="filter_checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+                window.location.href = this.id;
+        });
+    });
+
+    document.querySelectorAll('input[class="activate"]').forEach(function(checkbox) {
+        const checked = localStorage.getItem(checkbox.id);
+        checkbox.checked = checked === "true";
+        
+        // Добавляем слушатель события на изменение состояния чекбокса
+        checkbox.addEventListener("change", function() {
+            localStorage.setItem(checkbox.id, checkbox.checked);
+        });
+    });
+
+    });
+    </script>
+
+
+{% if show_save %}<input form="changelist-form" type="submit" value="{% translate 'Save' %}" class="default"
+    name="_save">{% endif %}
+
+
+{% include "admin/import_export/change_list_import_item.html" %}
+{% include "admin/import_export/change_list_export_item.html" %}
+{{ block.super }}
+
+{% endblock %}
+

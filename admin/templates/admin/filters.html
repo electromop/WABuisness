@@ -1,0 +1,41 @@
+{% load i18n %}
+{% blocktrans with filter_title=title %}
+
+<div class="menu">
+    <div class="drop-down-menu">
+      <input type="checkbox" class="activate" id="{{ filter_title }}" name="{{ filter_title }}">
+      <label for="{{ filter_title }}" class="menu-title">
+        {{ filter_title }}
+      </label>
+      <div class="drop-down">
+{% endblocktrans %}
+  <ul class="mulitple-choice">
+    {% for choice in choices %}
+        {% if choice.reset %}
+            <li{% if choice.selected %} class="selected"{% endif %}>
+                <a href="{{ choice.query_string|iriencode }}" title="{{ choice.display }}">
+                    {{ choice.display }}
+                </a>
+            </li>
+        {% endif %}
+    {% endfor %}
+    {% for choice in choices %}
+        {% if not choice.reset %}
+            <li{% if choice.selected %} class="selected"{% endif %}>
+              <a href="{{ choice.query_string|iriencode }}" title="{{ choice.display }}" style="display:inline">{{ choice.display }}</a>
+              {% if choice.selected and choice.exclude_query_string %}
+                    <input type="checkbox" class="filter_checkbox" id="{{ choice.exclude_query_string|iriencode }}" checked>
+    
+              {% endif %}
+              {% if not choice.selected and choice.include_query_string %}
+                    <input type="checkbox" class="filter_checkbox" id="{{ choice.include_query_string|iriencode }}">
+              {% endif %}
+            </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    
+    
+      </div>
+    </div>
+  </div>
