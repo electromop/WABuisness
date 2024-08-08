@@ -120,7 +120,7 @@ def send_message(notification: Notification):
 
 
 @bot.router.message(state=States.HELP.value)
-def handel_help(notification: Notification):
+def handle_help(notification: Notification):
     notification.answer(unknown)
 
 
