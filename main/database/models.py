@@ -7,6 +7,8 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship, Session
 
 from database.database_init import Base
 
+
+
 intpk = Annotated[int, mapped_column(autoincrement=True, primary_key=True)]
 
 
@@ -18,25 +20,24 @@ class UserRole(enum.Enum):
 class UserMaterials(Base):
     __tablename__ = "user_materials"
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    # material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
     material_name: Mapped[str]
-    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE(now())"))
+    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
 
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[intpk]
+    id: Mapped[int]
     name: Mapped[str] = mapped_column(nullable=True)
     key_word_id: Mapped[int] = mapped_column(ForeignKey("keywords.id", ondelete="CASCADE"))
     key_word: Mapped["Keyword"] = relationship(back_populates="users")
     role: Mapped[UserRole] = mapped_column(default=UserRole.user)
     phone_number: Mapped[str] = mapped_column(nullable=True)
     chat_id: Mapped[str] = mapped_column(nullable=True)
-    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE(now())"))
+    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
     region: Mapped[str] = mapped_column(nullable=True)
-    # materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
+    #materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
     def add_material(self, session: Session, material_name: str):
         query = select(UserMaterials).where(

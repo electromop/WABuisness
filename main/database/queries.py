@@ -31,13 +31,11 @@ class SyncORM:
 
     @staticmethod
     def read_material(key: str, phone: str):
-        query = select(User).options(selectinload(User.materials)).where(User.phone_number == phone)
+        query = select(User).where(User.phone_number == phone)
         with session_factory() as session:
             user_db = session.execute(query)
             user = user_db.scalars().first()
-            # material_db = session.execute(select(Material).where(or_(Material.name == key)))
-            # material = material_db.scalars().first()
-            # if material:
+            
             user.add_material(session, key)
             return
 

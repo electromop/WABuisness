@@ -51,31 +51,15 @@ class User(models.Model):
         verbose_name = "Пользователь"
 
 
-class Material(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)  # Adjust max_length as needed
-    key_word = models.CharField(max_length=255)  # Adjust max_length as needed
-    users = models.ManyToManyField(User, through="UserMaterials")
-
-    def __str__(self):
-        return f"{self.name} | {self.key_word}"
-
-    class Meta:
-        db_table = "materials"
-        verbose_name = "Материал"
-        verbose_name_plural = "Материалы"
-
-
 class UserMaterials(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,unique=True, primary_key=True)
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, unique=True)
     count = models.PositiveIntegerField(default=1)
     user_phone = models.CharField(max_length=15)  # Adjust max_length as needed
     material_name = models.CharField(max_length=255)  # Adjust max_length as needed
     date = models.DateTimeField(default=now)
 
     class Meta:
-        unique_together = ('user', 'material')
+        unique_together = ('user', 'material_name')
         db_table = "user_materials"
         verbose_name = "Материал пользователя"
         verbose_name_plural = "Материалы пользователя"
@@ -83,16 +67,3 @@ class UserMaterials(models.Model):
     def __str__(self):
         return f'{self.user.phone_number} | {self.material.name} | {self.date.strftime("%d/%m/%Y")}'
 
-
-class Question(models.Model):
-    id = models.AutoField(primary_key=True)
-    phone_number = models.CharField(max_length=15)  # Adjust max_length as needed
-    question = models.TextField()
-
-    def __str__(self):
-        return f"{self.phone_number} | {self.question[:12:]}{"..." if len(self.question) > 12 else ""}"
-
-    class Meta:
-        db_table = "questions"
-        verbose_name = "Вопрос"
-        verbose_name_plural = "Вопросы"

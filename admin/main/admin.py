@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, UserMaterials, Material, Question, Keyword
+from .models import User, UserMaterials, Keyword
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from django.utils.timezone import make_aware
@@ -43,7 +43,7 @@ class UserMaterialsResource(resources.ModelResource):
 
 class UserMaterialsAdmin(ImportExportModelAdmin):
 
-    model = Material.users.through
+    model = UserMaterials
 
     def has_add_permission(self, request):
         return False
@@ -67,38 +67,3 @@ class UserAdmin(ImportExportModelAdmin):
     list_editable = ["phone_number", "name", "role", "chat_id", "date", "region"]
     inlines = [UserMaterialsInLine]
     resource_classes = [UserResource]
-
-
-class MaterialResource(resources.ModelResource):
-    class Meta:
-        model = Material
-
-
-class MaterialAdmin(ImportExportModelAdmin):
-    list_display = ["id", "name", "key_word"]
-    list_editable = ["name", "key_word"]
-    inlines = [UserMaterialsInLine]
-    resource_classes = [MaterialResource]
-
-
-class MaterialAdminInline(admin.ModelAdmin):
-    model = Material
-
-
-class QuestionResource(resources.ModelResource):
-    class Meta:
-        model = Question
-
-
-@admin.register(Question)
-class QuestionAdmin(ImportExportModelAdmin):
-    list_display = ["id", "phone_number", "question"]
-    list_editable = ["phone_number", "question"]
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(UserMaterials, UserMaterialsAdmin)
-admin.site.register(Material, MaterialAdmin)
-admin.site.register(Keyword, KeywordAdmin)
-
-

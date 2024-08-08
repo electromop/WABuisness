@@ -483,5 +483,8 @@ def key_word_handler(notification: Notification) -> None:
                             "ты не знаешь или забыл ĸлючевое слово, то узнать его можно у своего руĸоводителя")
 
 
-if __name__ == "__main__":
-    bot.run_forever()
+while __name__ == "__main__":
+    try:
+        bot.run_forever()
+    except:
+        pass
