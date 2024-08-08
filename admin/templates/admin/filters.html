@@ -12,7 +12,7 @@
   <ul class="mulitple-choice">
     {% for choice in choices %}
         {% if choice.reset %}
-            <li{% if choice.selected %} class="selected"{% endif %}>
+            <li {% if choice.selected %} class="selected"{% endif %}>
                 <a href="{{ choice.query_string|iriencode }}" title="{{ choice.display }}">
                     {{ choice.display }}
                 </a>
@@ -21,7 +21,7 @@
     {% endfor %}
     {% for choice in choices %}
         {% if not choice.reset %}
-            <li{% if choice.selected %} class="selected"{% endif %}>
+            <li {% if choice.selected %} class="selected"{% endif %}>
               <a href="{{ choice.query_string|iriencode }}" title="{{ choice.display }}" style="display:inline">{{ choice.display }}</a>
               {% if choice.selected and choice.exclude_query_string %}
                     <input type="checkbox" class="filter_checkbox" id="{{ choice.exclude_query_string|iriencode }}" checked>
