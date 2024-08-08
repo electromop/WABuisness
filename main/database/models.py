@@ -18,11 +18,11 @@ class UserRole(enum.Enum):
 class UserMaterials(Base):
     __tablename__ = "user_materials"
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
+    # material_id = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
     material_name: Mapped[str]
-    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
+    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE(now())"))
 
 
 class User(Base):
@@ -34,19 +34,19 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(default=UserRole.user)
     phone_number: Mapped[str] = mapped_column(nullable=True)
     chat_id: Mapped[str] = mapped_column(nullable=True)
-    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE('utc', now())"))
+    date: Mapped[datetime.datetime] = mapped_column(default=text("TIMEZONE(now())"))
     region: Mapped[str] = mapped_column(nullable=True)
-    materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
+    # materials: Mapped[list["Material"]] = relationship(back_populates="users", secondary="user_materials")
 
-    def add_material(self, session: Session, material: 'Material'):
+    def add_material(self, session: Session, material_name: str):
         query = select(UserMaterials).where(
-            (UserMaterials.user_id == self.id) & (UserMaterials.material_id == material.id))
+            (UserMaterials.user_id == self.id) & (UserMaterials.material_name == material_name))
         user_material = session.execute(query).scalars().first()
         if user_material:
             user_material.count += 1
         else:
-            user_material = UserMaterials(user_id=self.id, material_id=material.id, count=1,
-                                          user_phone=self.phone_number, material_name=material.name)
+            user_material = UserMaterials(user_id=self.id, count=1,
+                                          user_phone=self.phone_number, material_name=material_name)
             session.add(user_material)
         session.commit()
 
@@ -58,16 +58,16 @@ class Keyword(Base):
     users: Mapped[list["User"]] = relationship(back_populates="key_word")
 
 
-class Material(Base):
-    __tablename__ = "materials"
-    id: Mapped[intpk]
-    name: Mapped[str]
-    key_word: Mapped[str]
-    users: Mapped[list[User]] = relationship(back_populates="materials", secondary="user_materials")
+# class Material(Base):
+#     __tablename__ = "materials"
+#     id: Mapped[intpk]
+#     name: Mapped[str]
+#     key_word: Mapped[str]
+#     users: Mapped[list[User]] = relationship(back_populates="materials", secondary="user_materials")
 
 
-class Question(Base):
-    __tablename__ = "questions"
-    id: Mapped[intpk]
-    phone_number: Mapped[str]
-    question: Mapped[str]
+# class Question(Base):
+#     __tablename__ = "questions"
+#     id: Mapped[intpk]
+#     phone_number: Mapped[str]
+#     question: Mapped[str]

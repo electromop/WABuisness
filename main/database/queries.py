@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 
 
 from database.database_init import engine, Base, session_factory
-from database.models import User, Material, UserRole, Keyword, Question
+from database.models import User, UserRole, Keyword
 
 
 class SyncORM:
@@ -21,13 +21,13 @@ class SyncORM:
             result = res.scalars().first()
             return result
 
-    @staticmethod
-    def find_material(key: str):
-        query = select(Material).where(Material.key_word == key)
-        with session_factory() as session:
-            res = session.execute(query)
-            result = res.scalars().first()
-            return result
+    # @staticmethod
+    # def find_material(key: str):
+    #     query = select(Material).where(Material.key_word == key)
+    #     with session_factory() as session:
+    #         res = session.execute(query)
+    #         result = res.scalars().first()
+    #         return result
 
     @staticmethod
     def read_material(key: str, phone: str):
@@ -35,10 +35,10 @@ class SyncORM:
         with session_factory() as session:
             user_db = session.execute(query)
             user = user_db.scalars().first()
-            material_db = session.execute(select(Material).where(or_(Material.key_word == key, Material.name == key)))
-            material = material_db.scalars().first()
-            if material:
-                user.add_material(session, material)
+            # material_db = session.execute(select(Material).where(or_(Material.name == key)))
+            # material = material_db.scalars().first()
+            # if material:
+            user.add_material(session, key)
             return
 
     @staticmethod
@@ -77,12 +77,12 @@ class SyncORM:
             session.add(new_user)
             session.commit()
 
-    @staticmethod
-    def new_feedback(text: str, phone: str):
-        new_feedback = Question(question=text, phone_number=phone)
-        with session_factory() as session:
-            session.add(new_feedback)
-            session.commit()
+    # @staticmethod
+    # def new_feedback(text: str, phone: str):
+    #     new_feedback = Question(question=text, phone_number=phone)
+    #     with session_factory() as session:
+    #         session.add(new_feedback)
+    #         session.commit()
 
     @staticmethod
     def find_user_by_phone(phone: str):

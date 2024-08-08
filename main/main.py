@@ -62,36 +62,36 @@ def help_command(notification: Notification):
                         )
 
 
-@bot.router.message(text_message=["Привет", "привет", "\"Привет\"", "\"привет\""])
+@bot.router.message(text_message=["Привет", "привет", "\"Привет\"", "\"привет\"", "ПРИВЕТ", "Привет.", "привет."])
 def greeting(notification: Notification):
     sender = notification.sender
     notification.state_manager.update_state(sender, States.CATEGORY.value)
     notification.answer(menu)
 
 
-@bot.router.message(text_message=["Меню", "меню", "\"Меню\"", "\"меню\"", "МЕНЮ"])
+@bot.router.message(text_message=["Меню", "меню", "\"Меню\"", "\"меню\"", "МЕНЮ", "меню.", "Меню."])
 def menu_handler(notification: Notification):
     sender = notification.sender
     notification.state_manager.update_state(sender, States.CATEGORY.value)
     notification.answer(menu)
 
 
-@bot.router.message(command="search")
-def search(notification: Notification) -> None:
-    sender = notification.sender
-    notification.state_manager.update_state(sender, States.SEARCH.value)
-    notification.answer("Введите ключевое слово для материала")
+# @bot.router.message(command="search")
+# def search(notification: Notification) -> None:
+#     sender = notification.sender
+#     notification.state_manager.update_state(sender, States.SEARCH.value)
+#     notification.answer("Введите ключевое слово для материала")
 
 
-@bot.router.message(command="files")
-def get_all_files(notification: Notification):
-    sender = notification.sender
-    key = SyncORM.find_user_by_phone(sender.split("@")[0])
-    if not key:
-        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
-        return
-    files = set([i["name"] for i in disk.get_files() if i.get("type") != "dir"])
-    notification.answer(("{:s}\n" * len(files)).format(*files)[:-1:])
+# @bot.router.message(command="files")
+# def get_all_files(notification: Notification):
+#     sender = notification.sender
+#     key = SyncORM.find_user_by_phone(sender.split("@")[0])
+#     if not key:
+#         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
+#         return
+#     files = set([i["name"] for i in disk.get_files() if i.get("type") != "dir"])
+#     notification.answer(("{:s}\n" * len(files)).format(*files)[:-1:])
 
 
 @bot.router.message(command="send")
@@ -108,15 +108,15 @@ def send_message(notification: Notification):
                         "3. По указанному региону")
 
 
-@bot.router.message(command="feedback")
-def feedback_command(notification: Notification):
-    sender = notification.sender
-    key = SyncORM.find_user_by_phone(sender.split("@")[0])
-    if not key:
-        notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
-        return
-    notification.state_manager.update_state(sender, States.FEEDBACK.value)
-    notification.answer("Введите отзыв")
+# @bot.router.message(command="feedback")
+# def feedback_command(notification: Notification):
+#     sender = notification.sender
+#     key = SyncORM.find_user_by_phone(sender.split("@")[0])
+#     if not key:
+#         notification.answer("Пройдите авторизацию, чтобы пользоваться данной командой")
+#         return
+#     notification.state_manager.update_state(sender, States.FEEDBACK.value)
+#     notification.answer("Введите отзыв")
 
 
 @bot.router.message(state=States.HELP.value)
@@ -382,6 +382,8 @@ def ready_handler(notification: Notification):
     sender = notification.sender
     phone = sender.split("@")[0]
     key_mat = notification.state_manager.get_state_data(sender)["material"]
+    print(key_mat)
+    
     if notification.message_text.lower() == "изучено":
         SyncORM.read_material(key_mat, phone)
         notification.answer("Отлично! Рад был поделиться с тобой этой информацией!\n"
@@ -447,7 +449,7 @@ def handel_download_file(notification: Notification):
         notification.answer("🔢 Введите число/цифру")
         return
     if option > len(files):
-        notification.answer("❌ Такого варианта нет")
+        notification.answer("❌ Такого варианта нет, выбери цифру/число из доступных вариантов.\n\n*В случае, если тебе нужно изучить другой раздел напиши \"Меню\"*")
         return
     curr_path = os.path.dirname(__file__)
     prj_dir = os.path.join(curr_path)
@@ -460,6 +462,7 @@ def handel_download_file(notification: Notification):
     notification.answer("✅ *После ознаĸомления с материалом, напиши в чат \"Изучено\"*")
     os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
     notification.state_manager.update_state(sender, States.READY.value)
+    print("material key value", files[option - 1][0])
     notification.state_manager.set_state_data(sender, {"material": files[option - 1][0]})
 
 
