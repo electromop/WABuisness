@@ -48,7 +48,7 @@ class User(Base):
             user_material.count += 1
         else:
             user_material = UserMaterials(user_id=self.id, count=1,
-                                          user_phone=self.phone_number, material_name=material_name)
+                                          user_phone=self.phone_number, material_name=material_name, date=datetime.datetime.now())
             session.add(user_material)
         session.commit()
 
