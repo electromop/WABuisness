@@ -92,10 +92,10 @@ class UserMaterialsResource(resources.ModelResource):
     class Meta:
         model = UserMaterials
 
-    # def dehydrate_date(self, user_material):
-    #     if user_material.date:
-    #         return make_aware(user_material.date, timezone=UTC)
-    #     return None
+    def dehydrate_date(self, user_material):
+         if user_material.date:
+             return str(user_material.date)
+         return None
 
     def dehydrate_user(self, user_material):
         return user_material.user.id

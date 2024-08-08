@@ -23,7 +23,7 @@ class UserMaterials(Base):
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
-    material_name: Mapped[str]
+    material_name: Mapped[str] = mapped_column(primary_key=True)
     date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
 
 
