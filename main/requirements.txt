@@ -60,3 +60,4 @@ Werkzeug==3.0.3
 whatsapp-api-client-python==0.0.45
 whatsapp-chatbot-python==0.9.1
 WTForms==3.1.2
+pytz==2024.1
