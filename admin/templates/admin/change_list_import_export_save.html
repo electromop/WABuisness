@@ -4,6 +4,9 @@
 
 {% block object-tools-items %}
 <style>
+  #changelist-filter {
+    width: 4000px; /* Увеличьте значение в пикселях для изменения ширины */
+  }
     input[type="submit"].default {
         display: block;
         float: left;
@@ -72,6 +75,7 @@ a:hover {
 
 .drop-down-menu {
   display: block;
+  max-height: fit-content;
 }
 
 .menu-title {
@@ -121,7 +125,7 @@ a:hover {
 
 
 .activate:checked ~ .drop-down {
-  max-height: 500px;
+  max-height: 100vh;
 }
 
 .drop-down, .menu a, .drop-down-menu {
@@ -135,6 +139,8 @@ a:hover {
 .mulitple-choice {
   padding-bottom: 20px;
 }
+
+
 
 
 </style>
