@@ -486,7 +486,7 @@ def handel_download_file(notification: Notification):
     except Exception:
         notification.answer("🔢 Введите число/цифру")
         return
-    if option > len(files) and files[option - 1][1] != "Рассылка":
+    if option > len(files) and files[-1][1] != "Рассылка":
         notification.answer("❌ Такого варианта нет, выбери цифру/число из доступных вариантов.\n\n*В случае, если тебе нужно изучить другой раздел напиши \"Меню\"*")
         return
     elif files[option - 1][1] == "Рассылка":
