@@ -212,7 +212,8 @@ def send_text(notification: Notification):
     
     print('❤️❤️❤️', users)
     for user in users:
-        notification.api.sending.sendMessage(user.chat_id, f"{title}\n{text}")
+        mailing_text = f"{title}\n{text}\n\n*Не забудь зайти в раздел \"Срочно и важно\" и указать уведомление изученным*"
+        notification.api.sending.sendMessage(user.chat_id, mailing_text)
         
     notification.answer("Уведомление отправлено")
     notification.state_manager.update_state(sender, States.CATEGORY.value)
@@ -245,7 +246,7 @@ def choose_category(notification: Notification):
                 for i, mailing in enumerate(mailings):
                     formatted_string += f'{last_index + i + 1}. {mailing.title}\n'
                     
-                files.extend([(mailing.title, "Рассылка") for mailing in mailings])
+                files.extend([[mailing.title, "Рассылка"] for mailing in mailings])
             
             notification.answer(formatted_string)
 
@@ -419,7 +420,7 @@ def ready_handler(notification: Notification):
     sender = notification.sender
     phone = sender.split("@")[0]
     key_mat = notification.state_manager.get_state_data(sender)["material"]
-    print(key_mat)
+    
     
     if notification.message_text.lower() == "изучено":
         SyncORM.read_material(key_mat, phone)
@@ -490,6 +491,8 @@ def handel_download_file(notification: Notification):
         return
     elif files[option - 1][1] == "Рассылка":
         mailing_title = files[option - 1][0]
+        print(mailing_title)
+        files[option - 1][0] = 'Рассылка - ' + mailing_title
         mailing_text = SyncORM.get_mailing_text(mailing_title)
         
         notification.answer(f"Заголовок: {mailing_title}\n\n{mailing_text}/n/n*Не забудь зайти в раздел \"Срочно и важно\" и указать уведомление изученным*")
@@ -507,6 +510,7 @@ def handel_download_file(notification: Notification):
     notification.answer("✅ *После ознаĸомления с материалом, напиши в чат \"Изучено\"*")
     notification.state_manager.update_state(sender, States.READY.value)
     print("material key value", files[option - 1][0])
+    
     notification.state_manager.update_state_data(sender, {"material": files[option - 1][0]})
 
 
