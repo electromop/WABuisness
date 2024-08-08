@@ -7,7 +7,7 @@ from import_export import resources
 from import_export.admin import ExportActionModelAdmin
 from django.http import HttpRequest
 from django.utils.timezone import make_aware
-from datetime import UTC
+
 from .filters import *
 
 
