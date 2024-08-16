@@ -93,9 +93,7 @@ class UserMaterialsResource(resources.ModelResource):
         model = UserMaterials
 
     def dehydrate_date(self, user_material):
-         if user_material.date:
-             return str(user_material.date)
-         return None
+        return str(user_material.date) if user_material.date else None
 
     def dehydrate_user(self, user_material):
         return user_material.user.id
@@ -105,8 +103,8 @@ class UserMaterialsAdmin(DBModelAdmin):
 
     model = UserMaterials
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+         return False
 
     # def has_change_permission(self, request, obj=None):
     #     return False
