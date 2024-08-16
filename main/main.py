@@ -218,199 +218,64 @@ def send_text(notification: Notification):
     SyncORM.insert_mailing(title, text, mailing_type, keyword, region)
 
 
+def get_formatted_string(files):
+    return (
+        "Что именно тебе хотелось бы изучить? 🤔\n"
+        + "".join([f"{i + 1}. {file[0]}\n" for i, file in enumerate(files)])[:-1]
+        + "\n*Выбери тему и напиши мне номер/цифру этой темы в чат*\n\nТы всегда можешь "
+          "вернуться ĸ выбору темы написав мне \"Меню\""
+    )
+
+def handle_single_file(notification, file):
+    notification.answer(f"В категории есть только один файл: {file[0]}. Начинаю загрузку...")
+    sender = notification.sender
+    notification.state_manager.update_state_data(sender, {"category": [file], "single": True})
+    notification.state_manager.update_state(sender, States.DOWNLOAD.value)
+    
+    handel_download_file(notification)
+
+def handle_category_selection(notification, directory_path):
+    sender = notification.sender
+    res = disk.listdir(directory_path)
+    
+    if not res:
+        notification.answer(no_files)
+        notification.answer(menu)
+        return
+
+    files = [(i["name"], i["path"]) for i in res]
+    
+    if len(files) == 1:
+        handle_single_file(notification, files[0])
+    else:
+        formatted_string = get_formatted_string(files)
+        notification.answer(formatted_string)
+        notification.state_manager.set_state_data(sender, {"category": files, "single": False})
+        notification.state_manager.update_state(sender, States.DOWNLOAD.value)
+
 @bot.router.message(state=States.CATEGORY.value)
 def choose_category(notification: Notification):
-    sender = notification.sender
-    match notification.message_text:
-        case "1" | "Срочно и важно":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/1. Срочно и важно")
-            mailings = SyncORM.get_mailings_for_user(sender.split("@")[0])
-            
-            if len(res) == 0 and not mailings:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[:-1] + ("\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                     "вернуться ĸ выбору темы написав мне \"Меню\"")
-            
-            
-            if mailings:
-                formatted_string += "\n\nПоследние уведомления:\n"
-                last_index = len(files)
-                for i, mailing in enumerate(mailings):
-                    formatted_string += f'{last_index + i + 1}. {mailing.title}\n'
-                    
-                files.extend([[mailing.title, "Рассылка"] for mailing in mailings])
-            
-            notification.answer(formatted_string)
+    category_paths = {
+        "1": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/1. Срочно и важно",
+        "2": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/2. Информация для нового сотрудника",
+        "3": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/3. Инфопак",
+        "4": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/4. Работа с программами",
+        "5": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/5. Памятка мерчандайзера",
+        "6": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/6. База знаний",
+        "7": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/7. Контакты",
+        "8": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/8. KPI и мотивация",
+        "9": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/9. FAQ_ЧаВо (частые вопросы)"
+    }
 
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-            
-        case "2" | "Информация для нового сотрудника":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/2. Информация для "
-                               "нового сотрудника")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
+    message_text = notification.message_text
 
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
+    for key, directory in category_paths.items():
+        if message_text == key or message_text in directory.split("/")[-1]:
+            handle_category_selection(notification, directory)
             return
-        case "3" | "Инфопак":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/3. Инфопак")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
 
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "4" | "Работа с программами":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/4. Работа с "
-                               "программами")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
+    notification.answer(unknown)
 
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "5" | "Памятка мерчандайзера":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/5. Памятка "
-                               "мерчандайзера")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
-
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "6" | "База знаний":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/6. База знаний")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
-
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "7" | "Контакты":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/7. Контакты")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
-
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "8" | "KPI и мотивация":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/8. KPI и мотивация")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
-
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case "9" | "FAQ / ЧаВо (часто задаваемые вопросы)":
-            res = disk.listdir("disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/9. FAQ_ЧаВо ("
-                               "частые вопросы)")
-            if len(res) == 0:
-                notification.answer(no_files)
-                notification.answer(menu)
-                return
-            files = [(i["name"], i["path"]) for i in res]
-            formatted_string = "Что именно тебе хотелось бы изучить? 🤔\n" + "".join(
-                ["{:d}. {:s}\n".format(i + 1, file[0]) for
-                 i, file in enumerate(
-                    files)])[
-                                                                            :-1] + (
-                                   "\n*Выбери тему и напиши мне номер этой темы в чат*\n\nТы всегда можешь "
-                                   "вернуться ĸ выбору темы написав мне \"Меню\"")
-            notification.answer(formatted_string)
-
-            notification.state_manager.update_state_data(sender, {"category": files})
-            notification.state_manager.update_state(sender, States.DOWNLOAD.value)
-            return
-        case _:
-            notification.answer(unknown)
-            return
 
 
 @bot.router.message(state=States.READY.value)
@@ -479,8 +344,11 @@ def give_feedback(notification: Notification):
 def handel_download_file(notification: Notification):
     sender = notification.sender
     files = notification.state_manager.get_state_data(sender)["category"]
+    is_single = notification.state_manager.get_state_data(sender)["single"]
+    
+    
     try:
-        option = int(notification.message_text)
+        option = int(notification.message_text) if not is_single else 1
     except Exception:
         notification.answer("🔢 Введите номер")
         return
