@@ -24,13 +24,8 @@ class UserMaterials(Base):
     user_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     count: Mapped[int]
     user_phone: Mapped[str]
-<<<<<<< HEAD
-    material_name: Mapped[str] = mapped_column(primary_key=True)
-    date: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now())
-=======
     material_name: Mapped[str]
     date: Mapped[datetime] = mapped_column(default=datetime.now())
->>>>>>> ab06d3f4a3f5e89c5e71265b230c1cfd7ba33e76
 
 
 class User(Base):
@@ -96,3 +91,4 @@ class Mailing(Base):
 #     id: Mapped[intpk]
 #     phone_number: Mapped[str]
 #     question: Mapped[str]
+
