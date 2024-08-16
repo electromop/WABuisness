@@ -194,7 +194,6 @@ def send_message_handler(notification: Notification):
 def send_text(notification: Notification):
     sender = notification.sender
     text = notification.message_text
-    print('❤️❤️❤️', notification.state_manager.get_state_data(sender))
     mailing_type = notification.state_manager.get_state_data(sender)["mailing_type"]
     title = notification.state_manager.get_state_data(sender)["title"]
 
@@ -210,7 +209,6 @@ def send_text(notification: Notification):
         region = notification.state_manager.get_state_data(sender)["region"]
         users = SyncORM.find_users_by_region(region)
     
-    print('❤️❤️❤️', users)
     for user in users:
         mailing_text = f"{title}\n{text}\n\n*Не забудь зайти в раздел \"Срочно и важно\" и указать уведомление изученным*"
         notification.api.sending.sendMessage(user.chat_id, mailing_text)
