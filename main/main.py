@@ -48,6 +48,14 @@ category_paths = {
     "9": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/9. FAQ_ЧаВо (частые вопросы)"
 }
 
+mailing_postscriptum = """ *
+"После ознаĸомления: 
+1. Напиши мне "Меню" 
+2. Выбери раздел "Срочно и важно" 
+3. Выбери из списĸа последнюю новость и напиши
+"Изучено" 
+☀️ Таĸ я буду знать, что ты ĸурсе всех новостей" *
+"""
 
 @bot.router.message(command="start")
 def start_command(notification: Notification) -> None:
@@ -222,7 +230,7 @@ def send_text(notification: Notification):
         users = SyncORM.find_users_by_region(region)
     
     for user in users:
-        mailing_text = f"{title}\n{text}\n\n*Не забудь зайти в раздел \"Срочно и важно\" и указать уведомление изученным*"
+        mailing_text = f"{title}\n{text}\n\n{mailing_postscriptum}"
         notification.api.sending.sendMessage(user.chat_id, mailing_text)
         
     notification.answer("Уведомление отправлено")

@@ -1,5 +1,6 @@
 .venv
 .vscode
 __pycache__
-main\.env
-main\config_reader.py
+main/.env
+main/config_reader.py
+*.pyc
