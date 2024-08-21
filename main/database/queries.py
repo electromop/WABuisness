@@ -1,6 +1,7 @@
 from sqlalchemy import and_, select, or_
 from sqlalchemy.orm import selectinload
 
+from sqlalchemy import func
 
 from database.database_init import engine, Base, session_factory
 from database.models import User, UserMaterials, UserRole, Keyword, Mailing
@@ -15,7 +16,7 @@ class SyncORM:
 
     @staticmethod
     def check_key(key: str):
-        query = select(Keyword).where(Keyword.key_word == key)
+        query = select(Keyword).where(func.lower(Keyword.key_word) == key.lower())
         with session_factory() as session:
             res = session.execute(query)
             result = res.scalars().first()
@@ -86,11 +87,11 @@ class SyncORM:
     def find_user_by_phone(phone: str):
         query = select(User).options(selectinload(User.key_word)).where(User.phone_number == phone)
         with session_factory() as session:
-            return session.execute(query).scalars().first()
+                return session.execute(query).scalars().first()
 
     @staticmethod
     def find_users_by_key(key: str):
-        query_key = select(Keyword).where(Keyword.key_word == key)
+        query_key = select(Keyword).where(func.lower(Keyword.key_word) == key.lower())
         with session_factory() as session:
             key_word = session.execute(query_key).scalars().first()
             if not key_word:

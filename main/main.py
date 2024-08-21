@@ -48,13 +48,13 @@ category_paths = {
     "9": "disk:/Загрузки/Обучающие материалы для мерчандайзера-новичка/Раздел/9. FAQ_ЧаВо (частые вопросы)"
 }
 
-mailing_postscriptum = """ *
-"После ознаĸомления: 
-1. Напиши мне "Меню" 
-2. Выбери раздел "Срочно и важно" 
-3. Выбери из списĸа последнюю новость и напиши
-"Изучено" 
-☀️ Таĸ я буду знать, что ты ĸурсе всех новостей" *
+mailing_postscriptum = """ 
+*"После ознаĸомления:*
+*1. Напиши мне "Меню"*
+*2. Выбери раздел "Срочно и важно"*
+*3. Выбери из списĸа последнюю новость и напиши*
+*"Изучено"* 
+☀️ *Таĸ я буду знать, что ты ĸурсе всех новостей"*
 """
 
 @bot.router.message(command="start")
@@ -86,6 +86,7 @@ def help_command(notification: Notification):
 def greeting(notification: Notification):
     sender = notification.sender
     key = SyncORM.find_user_by_phone(sender.split("@")[0])
+    
     if not key:
         notification.state_manager.set_state(sender, States.KEY_WORD.value)
         notification.answer("Привет, коллега! 🥳\nМеня зовут Хеллпер, я чат-бот помощник.\nЗдесь ты найдешь последние "
@@ -359,10 +360,10 @@ def handel_download_file(notification: Notification):
     sender = notification.sender
     files = notification.state_manager.get_state_data(sender)["category"]
     is_single = notification.state_manager.get_state_data(sender)["single"]
-    
-    
+
+
     try:
-        option = int(notification.message_text) if not is_single else 1
+        option = 1 if is_single else int(notification.message_text)
     except Exception:
         notification.answer("🔢 Введите номер")
         return
@@ -372,9 +373,9 @@ def handel_download_file(notification: Notification):
     elif files[option - 1][1] == "Рассылка":
         mailing_title = files[option - 1][0]
         print(mailing_title)
-        files[option - 1][0] = 'Рассылка - ' + mailing_title
+        files[option - 1][0] = f'Рассылка - {mailing_title}'
         mailing_text = SyncORM.get_mailing_text(mailing_title)
-        
+
         notification.answer(f"Заголовок: {mailing_title}\n\n{mailing_text}")
     else:    
         curr_path = os.path.dirname(__file__)
@@ -386,11 +387,11 @@ def handel_download_file(notification: Notification):
             notification.answer("Что то пошло не так")
         notification.answer_with_file(f"{prj_dir}/files/{files[option - 1][0]}", files[option - 1][0])
         os.remove(f"{prj_dir}/files/{files[option - 1][0]}")
-        
+
     notification.answer("✅ *После ознаĸомления с материалом, напиши в чат \"Изучено\"*")
     notification.state_manager.update_state(sender, States.READY.value)
     print("material key value", files[option - 1][0])
-    
+
     notification.state_manager.update_state_data(sender, {"material": files[option - 1][0]})
 
 
@@ -410,6 +411,5 @@ def key_word_handler(notification: Notification) -> None:
 
 
 if __name__ == "__main__":
-    print('ok')
     bot.run_forever()
 

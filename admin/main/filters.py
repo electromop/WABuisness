@@ -11,7 +11,7 @@ class UserIDFilter(MultipleChoiceListFilterWithCheckbox):
     parameter_name = 'id__in'
     
     def lookups(self, request, model_admin):
-        return [(obj.id, obj.id) for obj in User.objects.all()]
+        return [(obj.id, obj.id) for obj in User.objects.distinct('id')]
     
     
 class UserPhoneFilter(MultipleChoiceListFilterWithCheckbox):
@@ -19,7 +19,7 @@ class UserPhoneFilter(MultipleChoiceListFilterWithCheckbox):
     parameter_name = 'phone_number__in'
     
     def lookups(self, request, model_admin):
-        return [(obj.phone_number, obj.phone_number) for obj in User.objects.all()]
+        return [(obj.phone_number, obj.phone_number) for obj in User.objects.distinct('phone_number')]
     
 
 class UserNameFilter(MultipleChoiceListFilterWithCheckbox):

@@ -43,8 +43,7 @@ class User(Base):
     def add_material(self, session: Session, material_name: str):
         query = select(UserMaterials).where(
             (UserMaterials.user_id == self.id) & (UserMaterials.material_name == material_name))
-        user_material = session.execute(query).scalars().first()
-        if user_material:
+        if user_material := session.execute(query).scalars().first():
             user_material.count += 1
         else:
             user_material = UserMaterials(user_id=self.id, count=1,
@@ -60,17 +59,18 @@ class Keyword(Base):
     users: Mapped[list["User"]] = relationship(back_populates="key_word")
 
 
-# class Mailing(Base):
-#     __tablename__ = 'mailings'
+class Mailing(Base):
+    __tablename__ = 'mailings'
 
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     title = Column(String(255), nullable=False)  # Заголовок рассылки
-#     content = Column(Text, nullable=False)  # Текст рассылки
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(255), nullable=False)  # Заголовок рассылки
+    content = Column(Text, nullable=False)  # Текст рассылки
 
-#     mailing_type = Column(Enum('keyword', 'region', 'all_users', name='mailing_type_enum'), nullable=False)
+    mailing_type = Column(Enum('keyword', 'region', 'all_users', name='mailing_type_enum'), nullable=False)
 
-#     keyword = Column(String(255), nullable=True)
-#     region = Column(String(255), nullable=True)
+    keyword = Column(String(255), nullable=True)
+    region = Column(String(255), nullable=True)
+
 
 
 # class Material(Base):
